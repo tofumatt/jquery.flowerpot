@@ -1,0 +1,67 @@
+body {
+	background: #eee;
+}
+
+#flowerpotjs-overlay {
+	background-color: black;
+	height: 100%;
+	left: 0;
+	position: fixed;
+	top: 0;
+	width: 100%;
+	z-index: 100;
+}
+
+#flowerpotjs-close {
+	background: transparent url(images/flowerpot-close.png) center no-repeat;
+	display: block;
+	height: 40px;
+	outline: none !important;
+	position: relative;
+	width: 40px;
+	z-index: 103;
+}
+
+#flowerpotjs-loading {
+	background: white url(images/flowerpot-loading.gif) center 5px no-repeat;
+	border: 1px solid black;
+	height: 1em;
+	left: 50%;
+	margin: -1em 0 0;
+	padding: 40px .25em .25em;
+	position: fixed;
+	top: 50%;
+	width: auto;
+	z-index: 101;
+}
+
+#flowerpotjs-contents {
+	background: white;
+	border: 1px solid black;
+	left: 50%;
+	position: fixed;
+	top: 50%;
+	z-index: 102;
+}
+
+* html #flowerpotjs-overlay {
+	position: absolute;
+}
+
+* html #flowerpotjs-close {
+	background: url(images/flowerpot-close-ie6.png);
+	display: block;
+	margin-bottom: -40px;
+}
+
+* html #flowerpotjs-overlay, * html #flowerpotjs-loading {
+	left: expression(window.scrollLeft + 'px');
+	position: absolute !important;
+	top: expression(window.scrollTop + 'px');
+}
+
+* html #flowerpotjs-contents {
+	margin-left: expression(0 - parseInt(this.offsetWidth / 2) + (TBWindowMargin = document.documentElement && document.documentElement.scrollLeft || document.body.scrollLeft) + 'px');
+	margin-top: expression(0 - parseInt(this.offsetHeight / 2) + (TBWindowMargin = document.documentElement && document.documentElement.scrollTop || document.body.scrollTop) + 'px');
+	position: absolute;
+}
