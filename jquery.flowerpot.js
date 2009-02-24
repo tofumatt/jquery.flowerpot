@@ -29,8 +29,7 @@ Flowerpot_stdObject.prototype.init = function(options) {
 	jQuery(document).keydown(function(event) {
 		switch (event.keyCode) {
 			case 27: // Esc key
-				alert("still good");
-				if (the_flowerpot.overlay == true) the_flowerpot.hide();
+				if (the_flowerpot.ready == true) the_flowerpot.hide();
 				event.preventDefault();
 				break;
 			default:
@@ -40,8 +39,8 @@ Flowerpot_stdObject.prototype.init = function(options) {
 	
 	// Resize Events
 	jQuery(window).resize(function(event) {
-		if (this.ready == true) {
-			this.resize("#flowerpotjs-image");
+		if (the_flowerpot.ready == true) {
+			the_flowerpot.resize("#flowerpotjs-image");
 			event.preventDefault();
 		}
 	});
@@ -57,8 +56,8 @@ Flowerpot_stdObject.prototype.resize = function(object) {
 		var width = dom_img.width;
 		
 		if (jQuery.browser.msie == true && jQuery.browser.version < 7) {
-			jQuery("#flowerpotjs-overlay").css('height', jQuery(document).height())
-			jQuery("#flowerpotjs-overlay").css('width', window_width)
+			jQuery("#flowerpotjs-overlay").css('height', jQuery(document).height());
+			jQuery("#flowerpotjs-overlay").css('width', window_width);
 		}
 		
 		var max_height = window_height - window_height / 10;
@@ -96,7 +95,7 @@ Flowerpot_stdObject.prototype.resize = function(object) {
 		jQuery("#flowerpotjs-close").css('bottom', (height + 20) + "px");
 		jQuery("#flowerpotjs-close").css('left', (width - 20) + "px");
 		
-		this.ready = true;
+		the_flowerpot.ready = true;
 	});
 	dom_img.src = jQuery(object).attr('src');
 }
@@ -108,8 +107,8 @@ Flowerpot_stdObject.prototype.hide = function() {
 	if ((jQuery.browser.msie == true && jQuery.browser.version < 8) || jQuery.browser.opera) {
 		$("object,embed").css('visibility', "visible");
 	}
-	this.overlay = false;
-	this.ready = false;
+	the_flowerpot.overlay = false;
+	the_flowerpot.ready = false;
 }
 
 Flowerpot_stdObject.prototype.show = function() {
@@ -141,7 +140,7 @@ jQuery.fn.flowerpot = function(options) {
 	if (settings['type'] == "gallery") {
 		content = content + "<div id=\"flowerpotjs-prev-link\"><span>Previous Image</span></div><div id=\"flowerpotjs-next-link\"><span>Next Image</span></div>";
 	}
-	content = content + "<a href=\"#close\" id=\"flowerpotjs-close\"><span style=\"display: none;\">Close</span></a>";
+	content = content + "<a href=\"#close\" id=\"flowerpotjs-close\"><span id=\"flowerpotjs-close-span\"><span style=\"display: none;\">Close</span></span></a>";
 	
 	// Hide flash from IE < 8 while the overlay is on
 	if ((jQuery.browser.msie == true && jQuery.browser.version < 8) || jQuery.browser.opera) {
