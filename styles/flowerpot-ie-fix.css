@@ -3,20 +3,11 @@
 }
 
 #flowerpotjs-close {
-	background: none !important;
 	display: inline-block;
 	margin-bottom: -40px;
 }
-	
-	#flowerpotjs-close-span {
-		filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src="images/flowerpot-close.png");
-		display: inline-block !important;
-		height: 40px;
-		position:relative;
-		width: 40px;
-	}
 
-#flowerpotjs-overlay, * html #flowerpotjs-loading {
+#flowerpotjs-loading {
 	left: expression(window.scrollLeft + 'px');
 	position: absolute !important;
 	top: expression(window.scrollTop + 'px');

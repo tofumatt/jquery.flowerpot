@@ -13,28 +13,36 @@ body {
 }
 
 #flowerpotjs-close {
-	background: transparent url(images/flowerpot-close.png) center no-repeat;
+	background: transparent;
 	display: block;
 	height: 40px;
+	margin: 0;
 	outline: none !important;
+	padding: 0;
 	position: relative;
 	width: 40px;
 	z-index: 103;
 }
 
 #flowerpotjs-loading {
-	background: white url(images/flowerpot-loading.gif) center 5px no-repeat;
+	background: white;
 	border: 1px solid black;
-	height: 1em;
+	height: 35px;
 	left: 50%;
-	margin: -1em 0 0;
-	padding: 40px .25em .25em;
+	margin: 0;
+	padding: 0;
 	position: fixed;
 	top: 50%;
-	width: auto;
+	width: 35px;
 	z-index: 101;
 }
-
+	
+	#flowerpotjs-close img, #flowerpotjs-loading img {
+		border: none !important;
+		margin: 0;
+		padding: 0;
+	}
+	
 #flowerpotjs-contents {
 	background: white;
 	border: 1px solid black;
