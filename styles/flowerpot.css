@@ -1,0 +1,53 @@
+body {
+	background: #eee;
+}
+
+#flowerpotjs-overlay {
+	background-color: black;
+	height: 100%;
+	left: 0;
+	position: fixed;
+	top: 0;
+	width: 100%;
+	z-index: 100;
+}
+
+#flowerpotjs-close {
+	background: transparent;
+	display: block;
+	height: 40px;
+	margin: 0;
+	outline: none !important;
+	padding: 0;
+	position: relative;
+	width: 40px;
+	z-index: 103;
+}
+
+#flowerpotjs-loading {
+	background: white;
+	border: 1px solid black;
+	height: 35px;
+	left: 50%;
+	margin: 0;
+	padding: 0;
+	position: fixed;
+	top: 50%;
+	width: 35px;
+	z-index: 101;
+}
+	
+	#flowerpotjs-close img, #flowerpotjs-loading img {
+		border: none !important;
+		margin: 0;
+		padding: 0;
+	}
+	
+#flowerpotjs-contents {
+	background: white;
+	border: 1px solid black;
+	left: 50%;
+	position: fixed;
+	top: 50%;
+	z-index: 102;
+}
