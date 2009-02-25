@@ -3,12 +3,12 @@
  *
  * A jQuery plugin to overlay images, inline content, and more.
  *
- * @package		Flowerpot
- * @author		Matthew Riley MacPherson
- * @copyright	Copyright (c) 2009, Matthew Riley MacPherson
- * @license		New BSD License (http://www.opensource.org/licenses/bsd-license.php)
- * @link		http://flowerpot.googlecode.com/
- * @since		Version 0.1
+ * @package     Flowerpot
+ * @author      Matthew Riley MacPherson
+ * @copyright   Copyright (c) 2009, Matthew Riley MacPherson
+ * @license     New BSD License (http://www.opensource.org/licenses/bsd-license.php)
+ * @link        http://flowerpot.googlecode.com/
+ * @since       Version 0.1
  */
 // HTML plants in an overlayed pot!
 
