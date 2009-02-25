@@ -15,29 +15,35 @@ body {
 #flowerpotjs-close {
 	background: transparent;
 	display: block;
-	height: 40px;
+	height: 48px;
 	margin: 0;
 	outline: none !important;
 	padding: 0;
 	position: relative;
-	width: 40px;
-	z-index: 103;
+	width: 48px;
+	z-index: 104;
 }
 
 #flowerpotjs-loading {
-	background: white;
-	border: 1px solid black;
-	height: 35px;
+	height: 22px;
 	left: 50%;
 	margin: 0;
 	padding: 0;
 	position: fixed;
 	top: 50%;
-	width: 35px;
+	width: 126px;
 	z-index: 101;
 }
 	
-	#flowerpotjs-close img, #flowerpotjs-loading img {
+	#flowerpotjs-loading span {
+		clear: both;
+		display: block;
+		font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Helvetica, Arial, sans-serif;
+		text-align: center;
+		text-shadow: 1px 1px 2px #ccc;
+	}
+	
+	#flowerpotjs-close img, #flowerpotjs-loading img, .flowerpotjs-gallery-link img {
 		border: none !important;
 		margin: 0;
 		padding: 0;
@@ -50,4 +56,23 @@ body {
 	position: fixed;
 	top: 50%;
 	z-index: 102;
+}
+
+.flowerpotjs-gallery-link {
+	display: block;
+	height: 48px;
+	position: absolute;
+	top: 50%;
+	width: 48px;
+	z-index: 103;
+}
+
+#flowerpotjs-prev-link {
+	margin-right: -24px;
+	right: 100%;
+}
+
+#flowerpotjs-next-link {
+	left: 100%;
+	margin-left: -24px;
 }
