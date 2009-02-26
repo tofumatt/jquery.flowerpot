@@ -27,7 +27,7 @@ body {
 #flowerpotjs-loading {
 	height: 22px;
 	left: 50%;
-	margin: 0;
+	margin: 0 0 0 -63px;
 	padding: 0;
 	position: fixed;
 	top: 50%;
@@ -47,6 +47,7 @@ body {
 		border: none !important;
 		margin: 0;
 		padding: 0;
+		z-index: 104;
 	}
 	
 #flowerpotjs-contents {
