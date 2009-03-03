@@ -55,21 +55,38 @@
 	z-index: 102;
 }
 
+#flowerpotjs-description {
+	background: black;
+	border: 1px solid white;
+	color: white;
+	display: block;
+	font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Helvetica, Arial, sans-serif;
+	height: auto;
+	left: 12.5%;
+	margin: 0 auto;
+	padding: 0;
+	position: absolute;
+	text-align: center;
+	top: 101%;
+	width: 75%;
+	z-index: 103;
+}
+
 .flowerpotjs-gallery-link {
 	display: block;
-	height: 48px;
+	height: 32px;
 	position: absolute;
 	top: 50%;
-	width: 48px;
+	width: 32px;
 	z-index: 103;
 }
 
 #flowerpotjs-prev-link {
-	margin-right: -24px;
+	margin-right: -16px;
 	right: 100%;
 }
 
 #flowerpotjs-next-link {
 	left: 100%;
-	margin-left: -24px;
+	margin-left: -16px;
 }
