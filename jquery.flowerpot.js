@@ -13,16 +13,16 @@
 // HTML plants in an overlayed pot!
 
 function Flowerpot_stdObject() {
-	var images_dir = "images/";
-	this.close_img = images_dir + "flowerpot-close.png";
-	this.loading_img = images_dir + "flowerpot-loading.gif";
-	this.gallery_prev_img = images_dir + "flowerpot-prev.png";
-	this.gallery_next_img = images_dir + "flowerpot-next.png";
+	this.images_dir = "images/";
+	this.close_img = this.images_dir + "flowerpot-close.png";
+	this.loading_img = this.images_dir + "flowerpot-loading.gif";
+	this.gallery_prev_img = this.images_dir + "flowerpot-prev.png";
+	this.gallery_next_img = this.images_dir + "flowerpot-next.png";
 	// Define IE 6 images, if any, here
 	if (jQuery.browser.msie && jQuery.browser.version < 7) {
-		this.close_img = images_dir + "flowerpot-close-ie6.png";
-		this.gallery_prev_img = images_dir + "flowerpot-prev-ie6.png";
-		this.gallery_next_img = images_dir + "flowerpot-next-ie6.png";
+		this.close_img = this.images_dir + "flowerpot-close-ie6.png";
+		this.gallery_prev_img = this.images_dir + "flowerpot-prev-ie6.png";
+		this.gallery_next_img = this.images_dir + "flowerpot-next-ie6.png";
 	}
 	
 	this.animation_speed = 500; // animation time in ms
@@ -42,7 +42,6 @@ Flowerpot_stdObject.prototype.do_size = function(object) {
 	var window_width = jQuery(window).width();
 	var height = dom_img.height;
 	var width = dom_img.width;
-	dom_img = 0;
 	
 	if (jQuery.browser.msie && jQuery.browser.version < 7) {
 		jQuery("#flowerpotjs-overlay").css('height', jQuery(document).height());
@@ -181,7 +180,7 @@ Flowerpot_stdObject.prototype.init = function(options) {
 	// Resize Events
 	jQuery(window).resize(function(event) {
 		if (the_flowerpot.ready) {
-			the_flowerpot.resize("#flowerpotjs-image", true);
+			the_flowerpot.resize("#flowerpotjs-image");
 			event.preventDefault();
 		}
 	});
