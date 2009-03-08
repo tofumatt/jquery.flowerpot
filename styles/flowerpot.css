@@ -15,7 +15,9 @@
 	margin: 0;
 	outline: none !important;
 	padding: 0;
-	position: relative;
+	position: absolute;
+	right: -24px;
+	top: -20px;
 	width: 48px;
 	z-index: 104;
 }
