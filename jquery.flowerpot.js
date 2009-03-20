@@ -24,11 +24,9 @@ function Flowerpot_stdObject() {
 		this.gallery_prev_img = this.images_dir + "flowerpot-prev-ie6.png";
 		this.gallery_next_img = this.images_dir + "flowerpot-next-ie6.png";
 	}
-	
 	this.animation_speed = 500; // animation time in ms
 	this.animation_multiplier = 3; // set to 1 to disable the shiftKey animation slowdown
 	this.overlay_opacity = 0.5; // opacity of the overlay background
-	
 	this.gallery_index = 0;
 	this.gallery_size = 0;
 	this.overlay = false;
@@ -99,7 +97,7 @@ Flowerpot_stdObject.prototype.init = function(options) {
 		the_flowerpot.slow_animation = false;
 	});
 	jQuery(".flowerpot").live("click", function(event) {
-		if (the_flowerpot.overlay) return false;
+		if (the_flowerpot.overlay) return;
 		if (event.shiftKey) the_flowerpot.slow_animation = true;
 		if (event.button == 0) {
 			rel = jQuery(this).attr('rel');
@@ -216,13 +214,19 @@ Flowerpot_stdObject.prototype.hide = function() {
 	speed = the_flowerpot.animation_speed;
 	if (the_flowerpot.slow_animation) speed = speed * the_flowerpot.animation_multiplier;
 	the_flowerpot.gallery_size = 0;
-	jQuery("#flowerpotjs-loading").fadeOut(parseInt(speed / 5));
-	jQuery("#flowerpotjs-overlay").animate({opacity: 0}, speed).hide(speed);
+	jQuery("#flowerpotjs-loading").fadeOut(parseInt(speed / 2));
 	jQuery("#flowerpotjs-contents").fadeOut(speed);
-	if ((jQuery.browser.msie && jQuery.browser.version < 8) || jQuery.browser.opera) {
-		$("object,embed").css('visibility', "visible");
-	}
-	the_flowerpot.overlay = false;
+	jQuery("#flowerpotjs-contents").queue(function() {
+		jQuery("#flowerpotjs-contents").dequeue();
+		jQuery("#flowerpotjs-overlay").fadeOut(speed);
+	});
+	jQuery("#flowerpotjs-overlay").queue(function() {
+		jQuery("#flowerpotjs-overlay").dequeue();
+		if ((jQuery.browser.msie && jQuery.browser.version < 8) || jQuery.browser.opera)
+			jQuery("object,embed").css('visibility', "visible");
+		jQuery("body").removeClass("flowerpot-active");
+		the_flowerpot.overlay = false;
+	});
 }
 
 Flowerpot_stdObject.prototype.resize = function(object) {
@@ -232,11 +236,14 @@ Flowerpot_stdObject.prototype.resize = function(object) {
 Flowerpot_stdObject.prototype.show = function(speed) {
 	if (typeof(speed) == "undefined") speed = the_flowerpot.animation_speed;
 	if (the_flowerpot.slow_animation) speed = speed * the_flowerpot.animation_multiplier;
-	jQuery("#flowerpotjs-overlay").show().animate({opacity: settings['overlay_opacity']}, parseInt(settings['speed'] / 5));
-	jQuery("#flowerpotjs-loading").fadeOut(parseInt(speed / 5));
-	jQuery("#flowerpotjs-close").fadeIn(parseInt(speed / 5));
 	
+	jQuery("#flowerpotjs-loading").fadeOut(parseInt(speed / 2));
 	jQuery("#flowerpotjs-contents").fadeIn(speed);
+	jQuery("#flowerpotjs-contents").queue(function() {
+		jQuery("#flowerpotjs-contents").dequeue();
+		jQuery("#flowerpotjs-close").fadeIn(parseInt(speed / 2));
+	});
+	
 	the_flowerpot.ready = true;
 }
 
@@ -251,8 +258,6 @@ Flowerpot_stdObject.prototype.size = function(object) {
 the_flowerpot = new Flowerpot_stdObject();
 
 jQuery.fn.flowerpot = function(options) {
-	jQuery("#flowerpotjs-overlay").show();
-	the_flowerpot.overlay = true;
 	settings = jQuery.extend({
 		gallery: 0,
 		global: true,
@@ -260,7 +265,30 @@ jQuery.fn.flowerpot = function(options) {
 		speed: the_flowerpot.animation_speed,
 		type: "image"
 	}, options);
+	
+	the_flowerpot.close_img = the_flowerpot.images_dir + "flowerpot-close.png";
+	the_flowerpot.loading_img = the_flowerpot.images_dir + "flowerpot-loading.gif";
+	the_flowerpot.gallery_prev_img = the_flowerpot.images_dir + "flowerpot-prev.png";
+	the_flowerpot.gallery_next_img = the_flowerpot.images_dir + "flowerpot-next.png";
+	if (jQuery.browser.msie && jQuery.browser.version < 7) {
+		the_flowerpot.close_img = the_flowerpot.images_dir + "flowerpot-close-ie6.png";
+		the_flowerpot.gallery_prev_img = the_flowerpot.images_dir + "flowerpot-prev-ie6.png";
+		the_flowerpot.gallery_next_img = the_flowerpot.images_dir + "flowerpot-next-ie6.png";
+	}
+	the_flowerpot.animation_speed = the_flowerpot.animation_speed;
+	the_flowerpot.animation_multiplier = the_flowerpot.animation_multiplier;
+	the_flowerpot.overlay_opacity = the_flowerpot.overlay_opacity;
+	
 	if (the_flowerpot.slow_animation) settings['speed'] = settings['speed'] * the_flowerpot.animation_multiplier;
+	
+	jQuery("#flowerpotjs-overlay").css({opacity: settings['overlay_opacity']});
+	jQuery("#flowerpotjs-overlay").fadeIn(parseInt(settings['speed'] / 2));
+	jQuery("#flowerpotjs-overlay").queue(function() {
+		jQuery("#flowerpotjs-overlay").dequeue();
+		jQuery("body").addClass("flowerpot-active");
+		jQuery("#flowerpotjs-loading").fadeIn(parseInt(settings['speed'] / 2));
+	});
+	the_flowerpot.overlay = true;
 	
 	var content;
 	if (settings['type'] == "image" || settings['type'] == "gallery") { // Image or Gallery
@@ -293,7 +321,6 @@ jQuery.fn.flowerpot = function(options) {
 	
 	jQuery("#flowerpotjs-contents").html(content).css({'-moz-border-radius': "2px", '-webkit-border-radius': "1px"});
 	jQuery("#flowerpotjs-description").css({'-moz-border-radius': "3px", '-webkit-border-radius': "2px"});
-	jQuery("#flowerpotjs-loading").fadeIn(parseInt(settings['speed'] / 5));
 	
 	if (settings['type'] == "image" || settings['type'] == "gallery") {
 		if (jQuery.browser.opera) {
@@ -317,6 +344,10 @@ jQuery.fn.flowerpot = function(options) {
 		the_flowerpot.do_size("#flowerpotjs-div-inline");
 		the_flowerpot.show(settings['speed']);
 	}
+	jQuery("#flowerpotjs-contents").queue(function() {
+		jQuery("#flowerpotjs-contents").dequeue();
+		jQuery("#flowerpotjs-overlay").show();
+	});
 };
 
 jQuery(document).ready(function() {
