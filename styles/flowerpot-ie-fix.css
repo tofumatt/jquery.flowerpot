@@ -7,13 +7,7 @@
 	margin-bottom: -48px;
 }
 
-#flowerpotjs-loading {
-	left: expression(window.scrollLeft + 'px');
-	position: absolute;
-	top: expression(window.scrollTop + 'px');
-}
-
-#flowerpotjs-contents {
+#flowerpotjs-contents, #flowerpotjs-overlay span {
 	margin-left: expression(0 - parseInt(this.offsetWidth / 2) + (document.documentElement && document.documentElement.scrollLeft || document.body.scrollLeft) + 'px');
 	margin-top: expression(0 - parseInt(this.offsetHeight / 2) + (document.documentElement && document.documentElement.scrollTop || document.body.scrollTop) + 'px');
 	position: absolute;
