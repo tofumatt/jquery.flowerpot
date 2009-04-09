@@ -15,7 +15,6 @@
 function Flowerpot_stdObject() {
 	this.images_dir = "images/";
 	this.close_img = this.images_dir + "flowerpot-close.png";
-	this.loading_img = this.images_dir + "flowerpot-loading.gif";
 	this.gallery_prev_img = this.images_dir + "flowerpot-prev.png";
 	this.gallery_next_img = this.images_dir + "flowerpot-next.png";
 	// Define IE 6 images, if any, here
@@ -35,16 +34,18 @@ function Flowerpot_stdObject() {
 	this.dom_img = 0;
 }
 
-Flowerpot_stdObject.prototype.do_size = function(object) {
+Flowerpot_stdObject.prototype.do_size = function(object, size) {
+	var height;
+	var width;
+	if (typeof(size) == "undefined") {
+		height = the_flowerpot.dom_img.height;
+		width = the_flowerpot.dom_img.width;
+	} else {
+		height = size['height'];
+		width = size['width'];
+	}
 	var window_height = jQuery(window).height();
 	var window_width = jQuery(window).width();
-	var height = the_flowerpot.dom_img.height;
-	var width = the_flowerpot.dom_img.width;
-	
-	if (jQuery.browser.msie && jQuery.browser.version < 7) {
-		jQuery("#flowerpotjs-overlay").css('height', jQuery(document).height());
-		jQuery("#flowerpotjs-overlay").css('width', window_width);
-	}
 	
 	var max_height = window_height - window_height / 5;
 	var max_width = window_width - window_width / 5;
@@ -66,23 +67,34 @@ Flowerpot_stdObject.prototype.do_size = function(object) {
 		}
 	}
 	
-	jQuery(object).height(height + "px");
-	jQuery(object).width(width + "px");
+	if (typeof(height) != "undefined")
+		jQuery(object).height(height + "px");
+	if (typeof(width) != "undefined")
+		jQuery(object).width(width + "px");
 	
-	jQuery("#flowerpotjs-contents").css('height', height + "px");
+	if (typeof(height) == "undefined")
+		jQuery("#flowerpotjs-contents").css('height', "auto");
+	else
+		jQuery("#flowerpotjs-contents").css('height', height + "px");
+	if (typeof(width) == "undefined")
+		jQuery("#flowerpotjs-contents").css('width', "auto");
+	else
+		jQuery("#flowerpotjs-contents").css('width', width + "px");
+	
 	if (jQuery.browser.msie && jQuery.browser.version < 7) {
-	}
-	else {
+		jQuery("#flowerpotjs-overlay").css('height', jQuery(document).height());
+		jQuery("#flowerpotjs-overlay").css('width', window_width);
+	} else {
 		jQuery("#flowerpotjs-contents").css('margin-top', "-" + (height / 2) + "px");
 		jQuery("#flowerpotjs-contents").css('margin-left', "-" + (width / 2) + "px");
 	}
-	jQuery("#flowerpotjs-contents").css('width', width + "px");
 }
 
 Flowerpot_stdObject.prototype.init = function(options) {
-	var flowerpot_html = "<div id=\"flowerpotjs-overlay\" style=\"display: none;\"></div><div id=\"flowerpotjs-loading\" style=\"display: none;\"><img src=\"" + this.loading_img + "\" alt=\"Loading...\" /><span>Loading...</span></div><div id=\"flowerpotjs-contents\" style=\"display: none;\"></div>";
+	var flowerpot_html = '<div id="flowerpotjs-overlay" style="display: none;"><span>Loading... "Esc" to close</span></div><div id="flowerpotjs-contents" style="display: none;"></div>';
 	jQuery("body").append(flowerpot_html);
 	jQuery("#flowerpotjs-overlay").css({opacity: 0});
+	jQuery("#flowerpotjs-overlay span").css({'-moz-border-radius': "3px", '-webkit-border-radius': "2px"});
 	
 	if (typeof(options) != "object")
 		options = new Array;
@@ -102,8 +114,13 @@ Flowerpot_stdObject.prototype.init = function(options) {
 		if (event.button == 0) {
 			rel = jQuery(this).attr('rel');
 			if (rel.match(/div\[(.[^ ]*)\]/i)) { // Flowerpot inline div
-				rel = rel.replace(/div\[(.[^ ]*)\]/i, "$1");
-				jQuery(this).flowerpot({div_id: rel, type: "div"});
+				var id = rel.replace(/.*div\[(.[^ ]*)\].*/i, "$1");
+				var div_size = {};
+				if (rel.match(/height\[(.[^ ]*)\]/i))
+					div_size['height'] = rel.replace(/.*height\[(.[^ ]*)\].*/i, "$1");
+				if (rel.match(/width\[(.[^ ]*)\]/i))
+					div_size['width'] = rel.replace(/.*width\[(.[^ ]*)\].*/i, "$1");
+				jQuery(this).flowerpot({div_id: id, type: "div", size: div_size});
 			} else if (rel.match(/gallery\[(.[^ ]*)\]/i)) { // Flowerpot image gallery
 				the_flowerpot.gallery_index = jQuery(".flowerpot[rel=" + rel + "]").index(this);
 				the_flowerpot.gallery_size = jQuery(".flowerpot[rel=" + rel + "]").length;
@@ -214,7 +231,6 @@ Flowerpot_stdObject.prototype.hide = function() {
 	speed = the_flowerpot.animation_speed;
 	if (the_flowerpot.slow_animation) speed = speed * the_flowerpot.animation_multiplier;
 	the_flowerpot.gallery_size = 0;
-	jQuery("#flowerpotjs-loading").fadeOut(parseInt(speed / 2));
 	jQuery("#flowerpotjs-contents").fadeOut(speed);
 	jQuery("#flowerpotjs-contents").queue(function() {
 		jQuery("#flowerpotjs-contents").dequeue();
@@ -237,7 +253,7 @@ Flowerpot_stdObject.prototype.show = function(speed) {
 	if (typeof(speed) == "undefined") speed = the_flowerpot.animation_speed;
 	if (the_flowerpot.slow_animation) speed = speed * the_flowerpot.animation_multiplier;
 	
-	jQuery("#flowerpotjs-loading").fadeOut(parseInt(speed / 2));
+	jQuery("#flowerpotjs-overlay span").fadeOut(speed);
 	jQuery("#flowerpotjs-contents").fadeIn(speed);
 	jQuery("#flowerpotjs-contents").queue(function() {
 		jQuery("#flowerpotjs-contents").dequeue();
@@ -262,12 +278,12 @@ jQuery.fn.flowerpot = function(options) {
 		gallery: 0,
 		global: true,
 		overlay_opacity: the_flowerpot.overlay_opacity,
+		size: {},
 		speed: the_flowerpot.animation_speed,
 		type: "image"
 	}, options);
 	
 	the_flowerpot.close_img = the_flowerpot.images_dir + "flowerpot-close.png";
-	the_flowerpot.loading_img = the_flowerpot.images_dir + "flowerpot-loading.gif";
 	the_flowerpot.gallery_prev_img = the_flowerpot.images_dir + "flowerpot-prev.png";
 	the_flowerpot.gallery_next_img = the_flowerpot.images_dir + "flowerpot-next.png";
 	if (jQuery.browser.msie && jQuery.browser.version < 7) {
@@ -281,12 +297,12 @@ jQuery.fn.flowerpot = function(options) {
 	
 	if (the_flowerpot.slow_animation) settings['speed'] = settings['speed'] * the_flowerpot.animation_multiplier;
 	
+	jQuery("#flowerpotjs-overlay span").show();
 	jQuery("#flowerpotjs-overlay").css({opacity: settings['overlay_opacity']});
 	jQuery("#flowerpotjs-overlay").fadeIn(parseInt(settings['speed'] / 2));
 	jQuery("#flowerpotjs-overlay").queue(function() {
 		jQuery("#flowerpotjs-overlay").dequeue();
 		jQuery("body").addClass("flowerpot-active");
-		jQuery("#flowerpotjs-loading").fadeIn(parseInt(settings['speed'] / 2));
 	});
 	the_flowerpot.overlay = true;
 	
@@ -302,16 +318,16 @@ jQuery.fn.flowerpot = function(options) {
 		} else {
 			description = jQuery(this).attr("title");
 		}
-		content = "<img alt=\"" + alt_text + "\" src=\"" + jQuery(this).attr("href") + "\" id=\"flowerpotjs-image\" />";
+		content = '<img alt="' + alt_text + '" src="' + jQuery(this).attr("href") + '" id="flowerpotjs-image" />';
 		if (settings['type'] == "gallery") {
-			content = content + "<a href=\"#prev\" id=\"flowerpotjs-prev-link\" class=\"flowerpotjs-gallery-link\" rel=\"" + settings['gallery'] + "\"><img src=\"" + the_flowerpot.gallery_prev_img + "\" alt=\"Previous\" /></a><a href=\"#next\" id=\"flowerpotjs-next-link\" class=\"flowerpotjs-gallery-link\" rel=\"" + settings['gallery'] + "\"><img src=\"" + the_flowerpot.gallery_next_img + "\" alt=\"Next\" /></a>";
+			content = content + '<a href="#prev" id="flowerpotjs-prev-link" class="flowerpotjs-gallery-link" rel="' + settings['gallery'] + '"><img src="' + the_flowerpot.gallery_prev_img + '" alt="Previous" /></a><a href="#next" id="flowerpotjs-next-link" class="flowerpotjs-gallery-link" rel="' + settings['gallery'] + '"><img src="' + the_flowerpot.gallery_next_img + '" alt="Next" /></a>';
 		}
-		if (description) content = content + "<div id=\"flowerpotjs-description\">" + description + "</div>";
+		if (description) content = content + '<div id="flowerpotjs-description">' + description + '</div>';
 	}
 	if (settings['type'] == "div") { // Inline <div>
-		content = "<div id=\"flowerpotjs-div-inline\">" + jQuery("#" + settings['div_id']).html() + "</div>";
+		content = '<div id="flowerpotjs-div-inline">' + jQuery("#" + settings['div_id']).html() + '</div>';
 	}
-	content = content + "<a href=\"#close\" id=\"flowerpotjs-close\"><img src=\"" + the_flowerpot.close_img + "\" alt=\"Close\" /></a>";
+	content = content + '<a href="#close" id="flowerpotjs-close"><img src="' + the_flowerpot.close_img + '" alt="Close" /></a>';
 	
 	// Hide flash from IE < 8 while the overlay is on
 	if ((jQuery.browser.msie && jQuery.browser.version < 8) || jQuery.browser.opera) {
@@ -341,7 +357,7 @@ jQuery.fn.flowerpot = function(options) {
 			});
 		}
 	} else if (settings['type'] == "div") {
-		the_flowerpot.do_size("#flowerpotjs-div-inline");
+		the_flowerpot.do_size("#flowerpotjs-div-inline", settings['size']);
 		the_flowerpot.show(settings['speed']);
 	}
 	jQuery("#flowerpotjs-contents").queue(function() {
