@@ -4,11 +4,16 @@
 
 #flowerpotjs-close {
 	display: inline-block;
-	margin-bottom: -48px;
+	margin-bottom: -32px;
 }
 
 #flowerpotjs-contents, #flowerpotjs-overlay span {
 	margin-left: expression(0 - parseInt(this.offsetWidth / 2) + (document.documentElement && document.documentElement.scrollLeft || document.body.scrollLeft) + 'px');
+	margin-top: expression(0 - parseInt(this.offsetHeight / 2) + (document.documentElement && document.documentElement.scrollTop || document.body.scrollTop) + 'px');
+	position: absolute;
+}
+
+.flowerpotjs-gallery-link {
 	margin-top: expression(0 - parseInt(this.offsetHeight / 2) + (document.documentElement && document.documentElement.scrollTop || document.body.scrollTop) + 'px');
 	position: absolute;
 }
