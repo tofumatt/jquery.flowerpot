@@ -55,7 +55,7 @@ function fp_o() {
 	fp_o.prototype.ie6_resize_overlay = function() {
 		$('#flowerpotjs-overlay').css('height', $(document).height());
 		$('#flowerpotjs-overlay').css('width', $(window).width());
-	}
+	};
 	
 	// --------------------------------------------------------------------
 	
@@ -66,16 +66,16 @@ function fp_o() {
 	 * listener to calculate the size after it loads.
 	 *
 	 * @access	public
-	 * @param	string		object		jQuery selector of element to resize
+	 * @param	string		selector		jQuery selector of element to resize
 	 * @return	void
 	 */
-	$.fn.fp_image = function() {
+	fp_o.prototype.image = function(selector) {
 		fp.dom_img = new Image();
 		$(fp.dom_img).load(function() {
-			$(this).fp_resize();
+			fp.resize(selector);
 		});
-		fp.dom_img.src = $(this).attr('src');
-	}
+		fp.dom_img.src = $(selector).attr('src');
+	};
 	
 	// --------------------------------------------------------------------
 	
@@ -202,7 +202,7 @@ function fp_o() {
 		$(window).resize(function(event) {
 			if (fp.ready) {
 				if (fp.type == 'image' || fp.type == 'gallery')
-					$('#flowerpotjs-image').fp_resize();
+					fp.resize('#flowerpotjs-image');
 				else if ($.browser.msie && $.browser.version < 7)
 					fp.ie6_resize_overlay();
 				event.preventDefault();
@@ -238,7 +238,7 @@ function fp_o() {
 				fp.gallery_index = 0;
 		}
 		$('.flowerpot[rel=' + rel + ']').eq(fp.gallery_index).flowerpot({gallery: rel, type: 'gallery'});
-	}
+	};
 	
 	// --------------------------------------------------------------------
 	
@@ -276,7 +276,7 @@ function fp_o() {
 			$('body').removeClass('flowerpot-active');
 			fp.overlay = false;
 		});
-	}
+	};
 	
 	// --------------------------------------------------------------------
 	
@@ -288,14 +288,13 @@ function fp_o() {
 	 * or smaller Flowerpot
 	 *
 	 * @access	public
-	 * @param	object		size		object containing width, height
+	 * @param	string		selector		jQuery selector of element to resize
+	 * @param	object		size			object containing width, height
 	 * @return	void
 	 */
-	$.fn.fp_resize = function(size) {
-		var fp_contents = $('#flowerpotjs-contents');
+	fp_o.prototype.resize = function(selector, size) {
 		var height;
 		var width;
-		var window = $(window);
 		if (typeof(size) == 'undefined') {
 			height = fp.dom_img.height;
 			width = fp.dom_img.width;
@@ -303,8 +302,8 @@ function fp_o() {
 			height = size['height'];
 			width = size['width'];
 		}
-		var window_height = window.height();
-		var window_width = window.width();
+		var window_height = $(window).height();
+		var window_width = $(window).width();
 		
 		var max_height = window_height - window_height / 5;
 		var max_width = window_width - window_width / 5;
@@ -327,28 +326,27 @@ function fp_o() {
 		}
 		
 		if (typeof(height) != 'undefined')
-			$(this).height(height + 'px');
+			$(selector).height(height + 'px');
 		if (typeof(width) != 'undefined')
-			$(this).width(width + 'px');
+			$(selector).width(width + 'px');
 		
 		if (typeof(height) == 'undefined')
-			fp_contents.css('height', 'auto');
+			$('#flowerpotjs-contents').css('height', 'auto');
 		else
-			fp_contents.css('height', height + 'px');
+			$('#flowerpotjs-contents').css('height', height + 'px');
 		if (typeof(width) == 'undefined')
-			fp_contents.css('width', 'auto');
+			$('#flowerpotjs-contents').css('width', 'auto');
 		else
-			fp_contents.css('width', width + 'px');
+			$('#flowerpotjs-contents').css('width', width + 'px');
 		
-		if ($.browser.msie && $.browser.version < 7)
+		if ($.browser.msie && $.browser.version < 7) {
 			fp.ie6_resize_overlay();
-		else
-			fp_contents.css({
-				'margin-left': '-' + (width / 2) + 'px',
-				'margin-top': '-' + (height / 2) + 'px'
-			});
+		} else {
+			$('#flowerpotjs-contents').css('margin-top', '-' + (height / 2) + 'px');
+			$('#flowerpotjs-contents').css('margin-left', '-' + (width / 2) + 'px');
+		}
 		$('#flowerpotjs-description-bg').css({height: $('#flowerpotjs-description').height()});
-	}
+	};
 	
 	// --------------------------------------------------------------------
 	
@@ -385,7 +383,7 @@ function fp_o() {
 		});
 		
 		fp.ready = true;
-	}
+	};
 })(jQuery);
 
 fp = new fp_o();
@@ -475,12 +473,12 @@ the_flowerpot = fp;
 		
 		if (settings['type'] == 'image' || settings['type'] == 'gallery') {
 			if ($.browser.opera) {
-				$('#flowerpotjs-image').fp_image();
+				fp.image('#flowerpotjs-image');
 				fp.show(settings['speed']);
 			} else {
 				$('#flowerpotjs-image').load(function callback(event) {
 					if (settings['type'] == 'image' || settings['type'] == 'gallery')
-						$('#flowerpotjs-image').fp_image();
+						fp.image('#flowerpotjs-image');
 					if ($.browser.msie && $.browser.version == 7) {
 						fp.show(settings['speed']);
 					} else {
@@ -491,7 +489,7 @@ the_flowerpot = fp;
 				});
 			}
 		} else if (settings['type'] == 'div') {
-			$('#flowerpotjs-div-inline').fp_resize(settings['size']);
+			fp.resize('#flowerpotjs-div-inline', settings['size']);
 			fp.show(settings['speed']);
 		}
 		$('#flowerpotjs-contents').queue(function() {
