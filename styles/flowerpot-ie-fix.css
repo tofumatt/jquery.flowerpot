@@ -13,7 +13,7 @@
 	position: absolute;
 }
 
-.flowerpotjs-gallery-link {
+.flowerpotjs-gallery-link, .flowerpotjs-gallery-link-bg {
 	margin-top: expression(0 - parseInt(this.offsetHeight / 2) + (document.documentElement && document.documentElement.scrollTop || document.body.scrollTop) + 'px');
 	position: absolute;
 }

@@ -77,52 +77,50 @@
 	z-index: 102;
 }
 
-#flowerpotjs-description {
-	background: black;
-	border: 1px solid white;
+#flowerpotjs-description, #flowerpotjs-description-bg {
+	bottom: -2em;
 	color: white;
 	display: block;
 	font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Helvetica, Arial, sans-serif;
 	font-size: 14px;
 	height: auto;
-	left: 12.5%;
-	margin: 0 auto;
+	left: -5%;
+	margin: 101% auto 0;
 	padding: 0;
 	position: absolute;
 	text-align: center;
-	top: 101%;
-	width: 75%;
+	width: 110%;
 	z-index: 103;
 }
+	
+	#flowerpotjs-description-bg {
+		background: black;
+	}
 
-.flowerpotjs-gallery-link {
-	background: black;
+.flowerpotjs-gallery-link, .flowerpotjs-gallery-link-bg {
 	border: 1px solid white;
 	color: white;
-	display: block;
 	font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Helvetica, Arial, sans-serif;
 	font-size: 14px;
 	overflow: none;
-	padding: 4px;
+	padding: 8px 4px;
 	position: fixed;
 	text-decoration: none;
-	top: 45%;
-	width: 72px;
+	top: 60%;
+	width: 84px;
 	z-index: 103;
 }
 	
-	.flowerpotjs-gallery-link img {
-		display: block;
-		margin: 0 auto;
-		width: 64px;
+	.flowerpotjs-gallery-link-bg {
+		background: black;
 	}
 	
-	#flowerpotjs-prev-link {
+	#flowerpotjs-prev-link, #flowerpotjs-prev-link-bg {
 		left: 32px;
 		text-align: left;
 	}
 	
-	#flowerpotjs-next-link {
+	#flowerpotjs-next-link, #flowerpotjs-next-link-bg {
 		right: 32px;
 		text-align: right;
 	}
