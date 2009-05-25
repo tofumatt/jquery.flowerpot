@@ -14,33 +14,46 @@
 
 // The Flowerpot object, where default settings are stored.
 // Any of these settings can be overwritten, though it's
-// recommended that only the commented settings be changed.
+// recommended that only the "locale" and "settings" be modified.
 function fp_o() {
-	this.animation_speed = 500; // animation time in ms
-	this.animation_multiplier = 3; // set to 1 to disable the shiftKey animation slowdown
-	this.aux_opacity = 0.75; // opacity of the other backgrounds
-	this.close_img = 'flowerpot-close.png';
-	if ($.browser.msie && $.browser.version < 7)
-		this.close_img = 'flowerpot-close-ie6.png';
-	this.dom_img = 0;
-	this.gallery_index = 0;
-	this.gallery_size = 0;
-	this.images_dir = 'images/'; // path to your images folder -- can absolute or relative
-	this.locale = {
+	this.l = { // Locale html/text strings
 		'close': 'Close', // alt text for close image (should be text, not html)
 		'loading': 'Loading... "Esc" to close', // html that appears when the image is loading
-		'next': 'Next', // html inside the gallery "next" link
-		'previous': 'Previous' // html inside the gallery "previous" link
+		'next': 'Next →', // html inside the gallery "next" link
+		'previous': '← Previous' // html inside the gallery "previous" link
 	};
-	this.overlay = false;
-	this.overlay_opacity = 0.5; // opacity of the overlay background
-	this.ready = false;
-	this.slow_animation = false;
-	this.type = 'image';
+	this.p = { // Internal data members, stored in an array so jQuery
+			   // can run $.extend() to override settings
+		description: false,
+		div_id: '',
+		dom_img: 0,
+		gallery: 0,
+		gal_i: 0,
+		gal_size: 0,
+		overlay: false,
+		ready: false,
+		size: {},
+		slow_anim: false,
+		speed: 0,
+		src: false,
+		type: 'image'
+	};
+	this.s = { // User-customizable settings
+		anim_speed: 500, // animation time in ms
+		anim_multiplier: 3, // set to 1 to disable the shiftKey animation slowdown
+		aux_opacity: 0.75, // opacity of the other backgrounds
+		close_img: 'flowerpot-close.png',
+		images_dir: 'images/', // path to your images folder -- can absolute or relative
+		overlay_opacity: 0.5 // opacity of the overlay background
+	};
+	if ($.browser.msie && $.browser.version < 7)
+		this.settings['close_img'] = 'flowerpot-close-ie6.png';
 }
 
-(function($) {
-	
+// Create The Flowerpot object
+the_flowerpot = new fp_o();
+
+(function($, fp) {
 	// --------------------------------------------------------------------
 	
 	/**
@@ -53,8 +66,9 @@ function fp_o() {
 	 * @return	void
 	 */
 	fp_o.prototype.ie6_resize_overlay = function() {
-		$('#flowerpotjs-overlay').css('height', $(document).height());
-		$('#flowerpotjs-overlay').css('width', $(window).width());
+		var overlay = $('#flowerpotjs-overlay');
+		overlay.css('height', $(document).height());
+		overlay.css('width', $(window).width());
 	};
 	
 	// --------------------------------------------------------------------
@@ -70,11 +84,13 @@ function fp_o() {
 	 * @return	void
 	 */
 	fp_o.prototype.image = function(selector) {
-		fp.dom_img = new Image();
-		$(fp.dom_img).load(function() {
+		fp.p['dom_img'] = new Image();
+		// Create an event listener to resize the image when the
+		// image loads (in case the image is bigger than the viewport)
+		$(fp.p['dom_img']).load(function() {
 			fp.resize(selector);
 		});
-		fp.dom_img.src = $(selector).attr('src');
+		fp.p['dom_img'].src = $(selector).attr('src');
 	};
 	
 	// --------------------------------------------------------------------
@@ -85,126 +101,157 @@ function fp_o() {
 	 * Setup event listeners, CSS, and HTML.
 	 *
 	 * @access	public
-	 * @param	array		options		array of options to override defaults
+	 * @param	array		settings		array of settings to override defaults
+	 * @param	array		locale			array of locale html/text to override defaults
 	 * @return	void
 	 */
-	fp_o.prototype.init = function(options) {
-		fp.locale['loading'] = fp.locale['loading'];
-		var flowerpot_html = '<div id="flowerpotjs-overlay" style="display: none;"><span style="display: none;">' + fp.locale['loading'] + '</span></div><div id="flowerpotjs-contents" style="display: none;"></div>';
+	fp_o.prototype.init = function(settings, locale) {
+		// Load custom settings passed via array arguments
+		fp.l = $.extend(fp.l, locale);
+		fp.s = $.extend(fp.s, settings);
+		
+		var flowerpot_html = '<div id="flowerpotjs-overlay" style="display: none;"><span style="display: none;">' + fp.l['loading'] + '</span></div><div id="flowerpotjs-contents" style="display: none;"></div>';
 		$('body').append(flowerpot_html);
 		$('#flowerpotjs-overlay').css({opacity: 0});
-		$('#flowerpotjs-overlay span').css({'-moz-border-radius': '3px', '-webkit-border-radius': '2px'});
-		
-		if (typeof(options) != 'object')
-			options = new Array;
+		$('#flowerpotjs-overlay span').css({
+			'-moz-border-radius': '3px',
+			'-webkit-border-radius': '2px'
+		});
 		
 		// Click Events
 		$('#flowerpotjs-close,#flowerpotjs-overlay').live('click', function(event) { // Overlay or close link
-			if (event.shiftKey) fp.slow_animation = true;
-			if (event.button == 0 && fp.ready) {
+			if (event.shiftKey)
+				fp.p['slow_anim'] = true;
+			if (event.button == 0 && fp.p['ready']) {
 				fp.hide();
+				$(this).trigger('blur');
 				event.preventDefault();
 			}
-			fp.slow_animation = false;
+			fp.p['slow_anim'] = false;
 		});
-		$('.flowerpot').live('click', function(event) {
-			if (fp.overlay) return;
-			if (event.shiftKey) fp.slow_animation = true;
-			if (event.button == 0) {
-				rel = $(this).attr('rel');
-				if (rel.match(/div\[(.[^ ]*)\]/i)) { // Flowerpot inline div
-					var id = rel.replace(/.*div\[(.[^ ]*)\].*/i, '$1');
+		$('.flowerpot').live('click', function(event) { // Event listener for all current
+														// and future elements with the class "flowerpot"
+			if (fp.p['overlay'])
+				return; // Don't try to grow another Flowerpot if there's already an overlay
+			if (event.shiftKey)
+				fp.p['slow_anim'] = true;
+			if (event.button == 0) { // Only load The Flowerpot when left-clicked
+				fp.p['rel'] = $(this).attr('rel');
+				if (fp.p['rel'].match(/div\[(.[^ ]*)\]/i)) { // Flowerpot inline div
+					// Get the ID, height, and width of the inline div to load
+					var id = fp.p['rel'].replace(/.*div\[(.[^ ]*)\].*/i, '$1');
 					var div_size = {};
-					if (rel.match(/height\[(.[^ ]*)\]/i))
-						div_size['height'] = rel.replace(/.*height\[(.[^ ]*)\].*/i, '$1');
-					if (rel.match(/width\[(.[^ ]*)\]/i))
-						div_size['width'] = rel.replace(/.*width\[(.[^ ]*)\].*/i, '$1');
-					$(this).flowerpot({div_id: id, type: 'div', size: div_size});
-				} else if (rel.match(/gallery\[(.[^ ]*)\]/i)) { // Flowerpot image gallery
-					fp.gallery_index = $('.flowerpot[rel=' + rel + ']').index(this);
-					fp.gallery_size = $('.flowerpot[rel=' + rel + ']').length;
-					$(this).flowerpot({gallery: rel, type: 'gallery'});
+					if (fp.p['rel'].match(/height\[(.[^ ]*)\]/i))
+						div_size.height = fp.p['rel'].replace(/.*height\[(.[^ ]*)\].*/i, '$1');
+					if (fp.p['rel'].match(/width\[(.[^ ]*)\]/i))
+						div_size.width = fp.p['rel'].replace(/.*width\[(.[^ ]*)\].*/i, '$1');
+					$(this).flowerpot({}, {
+						div_id: id,
+						size: div_size,
+						type: 'div'
+					});
+				} else if (fp.p['rel'].match(/gallery\[(.[^ ]*)\]/i)) { // Flowerpot image gallery
+					var selector = $('.flowerpot[rel=' + fp.p['rel'] + ']');
+					fp.p['gal_i'] = selector.index(this);
+					fp.p['gal_size'] = selector.length;
+					$(this).flowerpot({}, {
+						gallery: fp.p['rel'],
+						type: 'gallery'
+					});
 				} else { // Single Flowerpot image
 					$(this).flowerpot();
 				}
+				$(this).trigger('blur');
 				event.preventDefault();
 			}
-			fp.slow_animation = false;
+			fp.p['slow_anim'] = false;
 		});
-			// Gallery controls
-			$('#flowerpotjs-prev-link').live('click', function(event) { // Previous image
-				if (event.shiftKey) fp.slow_animation = true;
-				rel = $(this).attr('rel');
-				if (fp.ready && rel.match(/gallery\[(.[^ ]*)\]/i)) {
-					if (event.button == 0) {
-						fp.gallery_move('prev');
-					}
+		$('#flowerpotjs-prev-link').live('click', function(event) { // Gallery control: previous image
+			if (event.shiftKey)
+				fp.p['slow_anim'] = true;
+			fp.p['rel'] = $(this).attr('rel');
+			if (fp.p['ready'] && fp.p['rel'].match(/gallery\[(.[^ ]*)\]/i)) {
+				if (event.button == 0) {
+					fp.gallery_move('prev');
 				}
-				fp.slow_animation = false;
-				event.preventDefault();
-			});
-			$('#flowerpotjs-next-link').live('click', function(event) { // Next image
-				if (event.shiftKey) fp.slow_animation = true;
-				rel = $(this).attr('rel');
-				if (fp.ready && rel.match(/gallery\[(.[^ ]*)\]/i)) {
-					if (event.button == 0) {
-						fp.gallery_move('next');
-					}
+			}
+			fp.p['slow_anim'] = false;
+			$(this).trigger('blur');
+			event.preventDefault();
+		});
+		$('#flowerpotjs-next-link').live('click', function(event) { // Gallery control: next image
+			if (event.shiftKey)
+				fp.p['slow_anim'] = true;
+			fp.p['rel'] = $(this).attr('rel');
+			if (fp.p['ready'] && fp.p['rel'].match(/gallery\[(.[^ ]*)\]/i)) {
+				if (event.button == 0) {
+					fp.gallery_move('next');
 				}
-				fp.slow_animation = false;
-				event.preventDefault();
-			});
+			}
+			fp.p['slow_anim'] = false;
+			$(this).trigger('blur');
+			event.preventDefault();
+		});
 		
 		// Keyboard Events
 		$(document).keydown(function(event) {
-			if (event.shiftKey) fp.slow_animation = true; // Little OS X-like Easter Egg ^_^
+			if (event.shiftKey)
+				fp.p['slow_anim'] = true; // Little OS X-like Easter Egg -- slows down
+										  // animations when holding the Shift key ^_^
 			switch (event.keyCode) {
-				case 27: // Esc
-					if (fp.ready) {
+				case 27: // Esc (close The Flowerpot)
+					if (fp.p['ready']) {
 						fp.hide();
 					}
-					if (fp.overlay) {
-						fp.dom_img = 0;
+					if (fp.p['overlay']) {
+						fp.p['dom_img'] = 0;
 						fp.hide();
 					}
 					break;
-				case 35: // End
-					if (fp.ready && fp.gallery_size > 0) {
-						fp.gallery_move(fp.gallery_size - 1);
+				case 35: // End (loads last gallery image)
+					if (fp.p['ready'] && fp.p['gal_size'] > 0) {
+						fp.gallery_move(fp.p['gal_size'] - 1);
+						$(this).trigger('blur');
 						event.preventDefault();
 					}
 					break;
-				case 36: // Home
-					if (fp.ready && fp.gallery_size > 0) {
+				case 36: // Home (loads first gallery image)
+					if (fp.p['ready'] && fp.p['gal_size'] > 0) {
 						fp.gallery_move(0);
+						$(this).trigger('blur');
 						event.preventDefault();
 					}
 					break;
-				case 37: // Left Arrow
-					if (fp.ready && fp.gallery_size > 0) {
+				case 37: // Left Arrow (loads previous gallery image)
+					if (fp.p['ready'] && fp.p['gal_size'] > 0) {
 						fp.gallery_move('prev');
+						$(this).trigger('blur');
 						event.preventDefault();
 					}
 					break;
-				case 39: // Right Arrow
-					if (fp.ready && fp.gallery_size > 0) {
+				case 39: // Right Arrow (loads next gallery image)
+					if (fp.p['ready'] && fp.p['gal_size'] > 0) {
 						fp.gallery_move('next');
+						$(this).trigger('blur');
 						event.preventDefault();
 					}
 					break;
 				default:
 					break;
 			}
-			fp.slow_animation = false;
+			fp.p['slow_anim'] = false;
 		});
 		
 		// Resize Events
-		$(window).resize(function(event) {
-			if (fp.ready) {
-				if (fp.type == 'image' || fp.type == 'gallery')
+		$(window).resize(function(event) { // If the viewport size changes,
+										   // recalculate the image size
+			if (fp.p['ready']) {
+				if (fp.p['type'] == 'image' || fp.p['type'] == 'gallery')
 					fp.resize('#flowerpotjs-image');
-				else if ($.browser.msie && $.browser.version < 7)
+				else if ($.browser.msie && $.browser.version < 7) // The overlay for IE 6 is sized in JavaScript,
+																  // so it needs to be recalculated
 					fp.ie6_resize_overlay();
+				$(this).trigger('blur');
 				event.preventDefault();
 			}
 		});
@@ -223,21 +270,25 @@ function fp_o() {
 	 * @return	void
 	 */
 	fp_o.prototype.gallery_move = function(index) {
-		if (fp.gallery_index === index) return false;
+		if (index === fp.p['gal_i'])
+			return false;
 		$('#flowerpotjs-contents').hide();
-		fp.ready = false;
+		fp.p['ready'] = false;
 		if (typeof(index) == 'number') {
-			fp.gallery_index = index;
+			fp.p['gal_i'] = index;
 		} else if (index == 'prev') {
-			fp.gallery_index = fp.gallery_index - 1;
-			if (fp.gallery_index < 0)
-				fp.gallery_index = fp.gallery_size - 1;
+			fp.p['gal_i']--;
+			if (fp.p['gal_i'] < 0)
+				fp.p['gal_i'] = fp.p['gal_size'] - 1;
 		} else if (index == 'next') {
-			fp.gallery_index = fp.gallery_index + 1;
-			if (fp.gallery_index >= fp.gallery_size)
-				fp.gallery_index = 0;
+			fp.p['gal_i']++;
+			if (fp.p['gal_i'] >= fp.p['gal_size'])
+				fp.p['gal_i'] = 0;
 		}
-		$('.flowerpot[rel=' + rel + ']').eq(fp.gallery_index).flowerpot({gallery: rel, type: 'gallery'});
+		$('.flowerpot[rel=' + fp.p['rel'] + ']').eq(fp.p['gal_i']).flowerpot({}, {
+			gallery: fp.p['rel'],
+			type: 'gallery'
+		});
 	};
 	
 	// --------------------------------------------------------------------
@@ -252,30 +303,56 @@ function fp_o() {
 	 * @return	void
 	 */
 	fp_o.prototype.hide = function() {
-		fp.ready = false;
-		speed = fp.animation_speed;
-		if (fp.slow_animation) speed = speed * fp.animation_multiplier;
-		fp.gallery_size = 0;
-		if (fp.type == 'div')
-			$('#' + settings['div_id']).swap('#flowerpotjs-div-swap');
+		fp.p['ready'] = false;
+		
+		var fp_contents = $('#flowerpotjs-contents');
+		var gallery_links = $('.flowerpotjs-gallery-link,.flowerpotjs-gallery-link-bg');
+		var html_objects = $('object,embed');
+		var overlay = $('#flowerpotjs-overlay');
+		
+		if (fp.p['slow_anim'])
+			fp.p['speed'] = fp.s['anim_speed'] * fp.s['anim_multiplier'];
+		else
+			fp.p['speed'] = fp.s['anim_speed'];
+		fp.p['gal_size'] = 0;
+		if (fp.p['type'] == 'div')
+			$('#' + fp.p['div_id']).swap('#flowerpotjs-div-swap');
 		
 		if ($.browser.msie && $.browser.version < 8)
-			$('object,embed').css('visibility', 'visible');
+			html_objects.css('visibility', 'visible');
 		
-		$('#flowerpotjs-contents').fadeOut(speed);
-		$('.flowerpotjs-gallery-link,.flowerpotjs-gallery-link-bg').dequeue();
-		$('.flowerpotjs-gallery-link,.flowerpotjs-gallery-link-bg').fadeOut(speed);
-		$('#flowerpotjs-contents').queue(function() {
-			$('#flowerpotjs-contents').dequeue();
-			$('#flowerpotjs-overlay').fadeOut(speed);
+		fp_contents.fadeOut(fp.p['speed']);
+		gallery_links.dequeue();
+		gallery_links.fadeOut(fp.p['speed']);
+		fp_contents.queue(function() {
+			fp_contents.dequeue();
+			$('#flowerpotjs-controls').remove();
+			overlay.fadeOut(fp.p['speed']);
 		});
-		$('#flowerpotjs-overlay').queue(function() {
-			$('#flowerpotjs-overlay').dequeue();
+		overlay.queue(function() {
+			overlay.dequeue();
 			if (($.browser.msie && $.browser.version < 8) || $.browser.opera)
-				$('object,embed').css('visibility', 'visible');
+				html_objects.css('visibility', 'visible');
 			$('body').removeClass('flowerpot-active');
-			fp.overlay = false;
+			fp.p['overlay'] = false;
 		});
+	};
+	
+	// --------------------------------------------------------------------
+	
+	/**
+	 * Define custom locale strings
+	 *
+	 * Override default locale array with user-supplied html/text after
+	 * The Flowerpot has been initialized.
+	 *
+	 * @access	public
+	 * @param	array		locale		array of locale html/text to override defaults
+	 * @return	void
+	 */
+	fp_o.prototype.locale = function(locale) {
+		// Load custom settings passed via array arguments
+		fp.l = $.extend(fp.l, locale);
 	};
 	
 	// --------------------------------------------------------------------
@@ -293,14 +370,16 @@ function fp_o() {
 	 * @return	void
 	 */
 	fp_o.prototype.resize = function(selector, size) {
+		var fp_contents = $('#flowerpotjs-contents');
 		var height;
+		var object = $(selector);
 		var width;
 		if (typeof(size) == 'undefined') {
-			height = fp.dom_img.height;
-			width = fp.dom_img.width;
+			height = fp.p['dom_img'].height;
+			width = fp.p['dom_img'].width;
 		} else {
-			height = size['height'];
-			width = size['width'];
+			height = size.height;
+			width = size.width;
 		}
 		var window_height = $(window).height();
 		var window_width = $(window).width();
@@ -308,7 +387,7 @@ function fp_o() {
 		var max_height = window_height - window_height / 5;
 		var max_width = window_width - window_width / 5;
 		
-		// Check to make sure the image isn't too big!
+		// Check to make sure the image isn't too big for the viewport
 		if (width > max_width) {
 			height = height * (max_width / width);
 			width = max_width;
@@ -326,26 +405,45 @@ function fp_o() {
 		}
 		
 		if (typeof(height) != 'undefined')
-			$(selector).height(height + 'px');
+			object.height(height + 'px');
 		if (typeof(width) != 'undefined')
-			$(selector).width(width + 'px');
+			object.width(width + 'px');
 		
 		if (typeof(height) == 'undefined')
-			$('#flowerpotjs-contents').css('height', 'auto');
+			fp_contents.css('height', 'auto');
 		else
-			$('#flowerpotjs-contents').css('height', height + 'px');
+			fp_contents.css('height', height + 'px');
 		if (typeof(width) == 'undefined')
-			$('#flowerpotjs-contents').css('width', 'auto');
+			fp_contents.css('width', 'auto');
 		else
-			$('#flowerpotjs-contents').css('width', width + 'px');
+			fp_contents.css('width', width + 'px');
 		
 		if ($.browser.msie && $.browser.version < 7) {
 			fp.ie6_resize_overlay();
 		} else {
-			$('#flowerpotjs-contents').css('margin-top', '-' + (height / 2) + 'px');
-			$('#flowerpotjs-contents').css('margin-left', '-' + (width / 2) + 'px');
+			fp_contents.css({
+				'margin-top': '-' + (height / 2) + 'px',
+				'margin-left': '-' + (width / 2) + 'px'
+			});
 		}
 		$('#flowerpotjs-description-bg').css({height: $('#flowerpotjs-description').height()});
+	};
+	
+	// --------------------------------------------------------------------
+	
+	/**
+	 * Define custom settings
+	 *
+	 * Override default settings with user settings after The Flowerpot has
+	 * been initialized.
+	 *
+	 * @access	public
+	 * @param	array		settings		array of settings to override defaults
+	 * @return	void
+	 */
+	fp_o.prototype.settings = function(settings) {
+		// Load custom settings passed via array arguments
+		fp.s = $.extend(fp.s, settings);
 	};
 	
 	// --------------------------------------------------------------------
@@ -357,39 +455,39 @@ function fp_o() {
 	 * the "loading" text.
 	 *
 	 * @access	public
-	 * @param	integer		speed		transition animation speed in ms
 	 * @return	void
 	 */
-	fp_o.prototype.show = function(speed) {
-		if (typeof(speed) == 'undefined') speed = fp.animation_speed;
-		if (fp.slow_animation) speed = speed * fp.animation_multiplier;
+	fp_o.prototype.show = function() {
+		var fp_contents = $('#flowerpotjs-contents');
+		var overlay_span = $('#flowerpotjs-overlay span');
 		
-		if (fp.type == 'div')
-			$('#' + settings['div_id']).swap('#flowerpotjs-div-swap');
+		if (fp.p['slow_anim'])
+			fp.p['speed'] = fp.s['anim_speed'] * fp.s['anim_multiplier'];
+		else
+			fp.p['speed'] = fp.s['anim_speed'];
 		
 		if ($.browser.msie && $.browser.version < 8) {
+			// Object and embed elements (usually Flash) 'under' The Flowerpot
+			// can be problematic, so we hide them while the overlay is on.
 			$('object,embed').css('visibility', 'hidden');
 			$('#flowerpotjs-contents object,#flowerpotjs-contents embed').css('visibility', 'visible');
 		}
 		
-		$('#flowerpotjs-overlay span').fadeOut(speed);
-		$('#flowerpotjs-contents').fadeIn(speed);
-		$('#flowerpotjs-contents').queue(function() {
-			$('#flowerpotjs-contents').dequeue();
-			$('#flowerpotjs-overlay span').dequeue();
-			$('#flowerpotjs-overlay span').hide();
-			$('#flowerpotjs-description-bg').animate({height: $('#flowerpotjs-description').height()}, speed / 2);
-			$('#flowerpotjs-close').fadeIn(parseInt(speed / 2));
+		overlay_span.fadeOut(fp.p['speed']);
+		fp_contents.fadeIn(fp.p['speed']);
+		fp_contents.queue(function() {
+			fp_contents.dequeue();
+			overlay_span.dequeue();
+			overlay_span.hide();
+			// The description has a transparent background set with JavaScript;
+			// we position an empty div behind it and assign the description's
+			// height to the empty div.
+			$('#flowerpotjs-description-bg').animate({height: $('#flowerpotjs-description').height()}, fp.p['speed'] / 2);
+			$('#flowerpotjs-close').fadeIn(parseInt(fp.p['speed'] / 2));
 		});
 		
-		fp.ready = true;
+		fp.p['ready'] = true;
 	};
-})(jQuery);
-
-fp = new fp_o();
-the_flowerpot = fp;
-
-(function($) {
 	
 	// --------------------------------------------------------------------
 	
@@ -400,58 +498,94 @@ the_flowerpot = fp;
 	 * the options, if any, supplied.
 	 *
 	 * @access	public
-	 * @param	array		options		array of options to override defaults
-	 * @return	void
+	 * @param	array		settings		array of settings to override defaults
+	 * @param	array		props			array of properties to override defaults
+	 * @return	jQuery
 	 */
-	$.fn.flowerpot = function(options) {
-		settings = $.extend({
-			aux_opacity: fp.aux_opacity,
+	$.fn.flowerpot = function(settings, props) {
+		// Reload special defaults
+		fp.p = $.extend(fp.p, {
 			description: false,
-			gallery: 0,
-			overlay_opacity: fp.overlay_opacity,
+			div_id: '',
+			dom_img: 0,
+			overlay: false,
+			ready: false,
 			size: {},
-			speed: fp.animation_speed,
+			src: false,
 			type: 'image'
-		}, options);
+		});
 		
-		fp.animation_speed = fp.animation_speed;
-		fp.animation_multiplier = fp.animation_multiplier;
-		fp.close_img = fp.close_img;
-		fp.images_dir = fp.images_dir;
-		fp.overlay_opacity = fp.overlay_opacity;
-		fp.type = settings['type'];
+		// Load custom settings passed via array arguments
+		fp.p = $.extend(fp.p, props);
+		fp.s = $.extend(fp.s, settings);
 		
-		if (fp.slow_animation) settings['speed'] = settings['speed'] * fp.animation_multiplier;
+		var fp_contents = $('#flowerpotjs-contents');
+		var fp_controls = $('#flowerpotjs-controls');
+		var gallery_links = $('.flowerpotjs-gallery-link,.flowerpotjs-gallery-link-bg');
+		var html_objects = $('object,embed');
+		var overlay = $('#flowerpotjs-overlay');
 		
-		$('#flowerpotjs-overlay').css({opacity: settings['overlay_opacity']});
-		$('#flowerpotjs-overlay').fadeIn(parseInt(settings['speed'] / 2));
-		$('#flowerpotjs-overlay').queue(function() {
-			$('#flowerpotjs-overlay').dequeue();
-			$('#flowerpotjs-overlay span').animate({opacity: 1}, settings['speed']).fadeIn(settings['speed'] / 5);
+		fp.s['anim_speed'] = fp.s['anim_speed'];
+		fp.s['anim_multiplier'] = fp.s['anim_multiplier'];
+		fp.s['close_img'] = fp.s['close_img'];
+		fp.s['images_dir'] = fp.s['images_dir'];
+		fp.s['overlay_opacity'] = fp.s['overlay_opacity'];
+		
+		if (fp.p['slow_anim'])
+			fp.p['speed'] = fp.s['anim_speed'] * fp.s['anim_multiplier'];
+		else
+			fp.p['speed'] = fp.s['anim_speed'];
+		
+		// Load the overlay, which gives a visual queue that clicking a Flowerpot
+		// element actually did something, and also is an easy way to prevent most
+		// interaction with the page (as everything is under the overlay)
+		overlay.css({opacity: fp.s['overlay_opacity']});
+		overlay.fadeIn(parseInt(fp.p['speed'] / 2));
+		overlay.queue(function() {
+			overlay.dequeue();
+			$('#flowerpotjs-overlay span').animate({opacity: 1}, fp.p['speed']).fadeIn(fp.p['speed'] / 5);
 			$('body').addClass('flowerpot-active');
 		});
-		fp.overlay = true;
+		fp.p['overlay'] = true;
 		
-		var content;
+		var content = '';
 		var controls = '';
-		var description = settings['description'];
-		if (settings['type'] == 'image' || settings['type'] == 'gallery') { // Image or Gallery
-			if (!description) {
-				description = $('#' + $(this).attr('id') + '-flowerpot-description');
-				if (description.length > 0)
-					description = description.html();
-				else
-					description = $(this).attr('title');
-			}
-			content = '<img alt="Image overlay" src="' + $(this).attr("href") + '" id="flowerpotjs-image" />';
-			if (settings['type'] == 'gallery')			
-				controls = '<div id="flowerpotjs-controls"><span id="flowerpotjs-prev-link-bg" class="flowerpotjs-gallery-link-bg"></span><a href="#prev" id="flowerpotjs-prev-link" class="flowerpotjs-gallery-link" rel="' + settings['gallery'] + '">' + fp.locale['previous'] + '</a><span id="flowerpotjs-next-link-bg" class="flowerpotjs-gallery-link-bg"></span><a href="#next" id="flowerpotjs-next-link" class="flowerpotjs-gallery-link" rel="' + settings['gallery'] + '">' + fp.locale['next'] + '</a></div>';
-			if (description) content = content + '<div id="flowerpotjs-description-bg"></div><div id="flowerpotjs-description">' + description + '</div>';
+		// Display a description, The Flowerpot looks for a description
+		// from three places:
+		//
+		// 		1. options['description'] from the 'options' array
+		//
+		// 		2. an element with the same id as the element that invoked
+		// 			The Flowerpot, plus the suffix "-flowerpot-description"
+		//
+		// 		3. the "title" attribute of the element that invoked The Flowerpot
+		var description = fp.p['description'];
+		if (!description) {
+			description = $('#' + $(this).attr('id') + '-flowerpot-description');
+			if (description.length > 0)
+				description = description.html();
+			else
+				description = $(this).attr('title');
 		}
-		if (settings['type'] == 'div') // Inline <div>
-			content = '<div id="flowerpotjs-div-inline"><div id="flowerpotjs-div-swap" style="display: none;"></div></div>';
 		
-		content = content + '<a href="#close" id="flowerpotjs-close"><img src="' + fp.images_dir + fp.close_img + '" alt="' + fp.locale['close'] + '" /></a>';
+		if (fp.p['type'] == 'image' || fp.p['type'] == 'gallery') { // Image or Gallery
+			if (!fp.p['src'])
+				fp.p['src'] = $(this).attr('href');
+			content = '<img alt="Image overlay" src="' + fp.p['src'] + '" id="flowerpotjs-image" />';
+			if (fp.p['type'] == 'gallery')
+				controls = '<div id="flowerpotjs-controls"><span id="flowerpotjs-prev-link-bg" class="flowerpotjs-gallery-link-bg"></span><a href="#prev" id="flowerpotjs-prev-link" class="flowerpotjs-gallery-link" rel="' + fp.p['gallery'] + '">' + fp.l['previous'] + '</a><span id="flowerpotjs-next-link-bg" class="flowerpotjs-gallery-link-bg"></span><a href="#next" id="flowerpotjs-next-link" class="flowerpotjs-gallery-link" rel="' + fp.p['gallery'] + '">' + fp.l['next'] + '</a></div>';
+		} else if (fp.p['type'] == 'div') { // Inline div
+			content = '<div id="flowerpotjs-div-inline"><div id="flowerpotjs-div-swap" style="display: none;"></div></div>';
+		}
+		
+		// If there's a description available, add it to the HTML
+		if (description)
+			content += '<div id="flowerpotjs-description-bg"></div><div id="flowerpotjs-description">' + description + '</div>';
+		// Added the "close" image to the HTML
+		content += '<a href="#close" id="flowerpotjs-close"><img src="' + fp.s['images_dir'] + fp.s['close_img'] + '" alt="' + fp.l['close'] + '" /></a>';
+		// If gallery controls are available, add them to the HTML
+		if (fp_controls.length == 0)
+			fp_contents.after(controls);
 		
 		// Hide flash from IE < 8 while the overlay is on
 		if (($.browser.msie && $.browser.version < 8) || $.browser.opera) {
@@ -459,50 +593,55 @@ the_flowerpot = fp;
 			$('#flowerpotjs-contents object,#flowerpotjs-contents embed').css('visibility', 'visible');
 		}
 		
-		$('#flowerpotjs-contents').html(content).css({'-moz-border-radius': '2px', '-webkit-border-radius': '1px'});
-		if ($('#flowerpotjs-controls').length > 0)
-			$('#flowerpotjs-controls').replaceWith(controls);
-		else
-			$('#flowerpotjs-contents').after(controls);
-		
-		$('#flowerpotjs-description-bg,.flowerpotjs-gallery-link-bg').css({opacity: settings['aux_opacity']});
-		$('#flowerpotjs-description,#flowerpotjs-description-bg').css({'-moz-border-radius': '3px', '-webkit-border-radius': '2px'});
-		$('.flowerpotjs-gallery-link,.flowerpotjs-gallery-link-bg').css({'-moz-border-radius': '3px', '-webkit-border-radius': '2px'}).fadeIn(settings['speed']);
+		// Apply some non-standard CSS (opacity and border-radius) to browsers that support it
+		fp_contents.html(content).css({
+			'-moz-border-radius': '2px',
+			'-webkit-border-radius': '1px'
+		});
+		$('#flowerpotjs-description-bg,.flowerpotjs-gallery-link-bg').css({opacity: fp.s['aux_opacity']});
+		$('#flowerpotjs-description,#flowerpotjs-description-bg').css({
+			'-moz-border-radius': '3px',
+			'-webkit-border-radius': '2px'
+		});
+		$('.flowerpotjs-gallery-link,.flowerpotjs-gallery-link-bg').css({
+			'-moz-border-radius': '3px',
+			'-webkit-border-radius': '2px'
+		}).fadeIn(fp.p['speed']);
 		$('#flowerpotjs-prev-link-bg').css({height: $('#flowerpotjs-prev-link').height()});
 		$('#flowerpotjs-next-link-bg').css({height: $('#flowerpotjs-next-link').height()});
 		
-		if (settings['type'] == 'image' || settings['type'] == 'gallery') {
-			if ($.browser.opera) {
+		// And we're off to the races!
+		// Load the remote content into the DOM, or swap the inline div with a placeholder
+		if (fp.p['type'] == 'image' || fp.p['type'] == 'gallery') {
+			if ($.browser.opera) { // Opera acts a little weird with .load(), so we have
+								   // a special case for it
 				fp.image('#flowerpotjs-image');
-				fp.show(settings['speed']);
+				fp.show();
 			} else {
 				$('#flowerpotjs-image').load(function callback(event) {
-					if (settings['type'] == 'image' || settings['type'] == 'gallery')
+					if (fp.p['type'] == 'image' || fp.p['type'] == 'gallery')
 						fp.image('#flowerpotjs-image');
 					if ($.browser.msie && $.browser.version == 7) {
-						fp.show(settings['speed']);
+						fp.show();
 					} else {
-						$(fp.dom_img).load(function() {
-							fp.show(settings['speed']);
+						$(fp.p['dom_img']).load(function() {
+							fp.show();
 						});
 					}
 				});
 			}
-		} else if (settings['type'] == 'div') {
-			fp.resize('#flowerpotjs-div-inline', settings['size']);
-			fp.show(settings['speed']);
+		} else if (fp.p['type'] == 'div') {
+			fp.resize('#flowerpotjs-div-inline', fp.p['size']);
+			$('#' + fp.p['div_id']).swap('#flowerpotjs-div-swap');
+			fp.show();
 		}
-		$('#flowerpotjs-contents').queue(function() {
-			$('#flowerpotjs-contents').dequeue();
-			$('#flowerpotjs-overlay').show();
+		fp_contents.queue(function() {
+			fp_contents.dequeue();
+			overlay.show();
 		});
 		
 		return this;
 	};
-	
-	$(document).ready(function() {
-		fp.init();
-	});
 	
 	// --------------------------------------------------------------------
 	
@@ -527,4 +666,9 @@ the_flowerpot = fp;
 		
 		return this;
 	};
-})(jQuery);
+	
+	// Initialize The Flowerpot when the DOM is ready
+	$(document).ready(function() {
+		fp.init();
+	});
+})(jQuery, the_flowerpot);

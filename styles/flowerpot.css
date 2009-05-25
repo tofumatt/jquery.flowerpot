@@ -9,8 +9,6 @@
 }
 	
 	#flowerpotjs-overlay span {
-		background: black;
-		border: 1px solid white;
 		color: white;
 		display: block;
 		float: right;
@@ -41,27 +39,8 @@
 	width: 32px;
 	z-index: 104;
 }
-
-#flowerpotjs-loading {
-	height: 22px;
-	left: 50%;
-	margin: 0 0 0 -63px;
-	padding: 0;
-	position: fixed;
-	top: 50%;
-	width: 126px;
-	z-index: 101;
-}
 	
-	#flowerpotjs-loading span {
-		clear: both;
-		display: block;
-		font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Helvetica, Arial, sans-serif;
-		text-align: center;
-		text-shadow: 1px 1px 2px #ccc;
-	}
-	
-	#flowerpotjs-close img, #flowerpotjs-loading img, .flowerpotjs-gallery-link img {
+	#flowerpotjs-close img {
 		border: none !important;
 		margin: 0;
 		padding: 0;
@@ -98,7 +77,6 @@
 	}
 
 .flowerpotjs-gallery-link, .flowerpotjs-gallery-link-bg {
-	border: 1px solid white;
 	color: white;
 	font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Helvetica, Arial, sans-serif;
 	font-size: 14px;
