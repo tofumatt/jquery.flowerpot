@@ -151,8 +151,9 @@ the_flowerpot = new fp_o();
 						size: div_size,
 						type: 'div'
 					});
-				} else if (fp.p['rel'].match(/gallery\[(.[^ ]*)\]/i)) { // Flowerpot image gallery
-					var selector = $('.flowerpot[rel=' + fp.p['rel'] + ']');
+				} else if (fp.p['rel'].match(/gallery\[([^ ]*)\]/i)) { // Flowerpot image gallery
+					fp.p['rel'] = fp.p['rel'].replace(/.*(gallery\[([^ ]*)\]).*/i, '$1');
+					var selector = $('.flowerpot[rel*="' + fp.p['rel'] + '"]');
 					fp.p['gal_i'] = selector.index(this);
 					fp.p['gal_size'] = selector.length;
 					$(this).flowerpot({}, {
@@ -283,7 +284,7 @@ the_flowerpot = new fp_o();
 			if (fp.p['gal_i'] >= fp.p['gal_size'])
 				fp.p['gal_i'] = 0;
 		}
-		$('.flowerpot[rel=' + fp.p['rel'] + ']').eq(fp.p['gal_i']).flowerpot({}, {
+		$('.flowerpot[rel*="' + fp.p['rel'] + '"]').eq(fp.p['gal_i']).flowerpot({}, {
 			type: 'gallery'
 		});
 	};
