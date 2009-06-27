@@ -23,11 +23,12 @@ function fp_o() {
 	};
 	this.p = { // Internal data members, stored in an array so jQuery
 			   // can run $.extend() to override settings
+		ajax: false,
 		description: false,
-		div_id: '',
 		dom_img: 0,
 		gal_i: 0,
 		gal_size: 0,
+		i_content: '',
 		overlay: false,
 		ready: false,
 		rel: '',
@@ -147,17 +148,30 @@ the_flowerpot = new fp_o();
 				fp.p['slow_anim'] = true;
 			if (event.button == 0) { // Only load The Flowerpot when left-clicked
 				fp.p['rel'] = $(this).attr('rel');
-				if (fp.p['rel'].match(/div\[([^ ]*)\]/i)) { // Flowerpot inline div
-					// Get the ID, height, and width of the inline div to load
-					var id = fp.p['rel'].replace(/.*div\[([^ ]*)\].*/i, '$1');
-					var div_size = {};
+				if (fp.p['rel'].match(/iframe\[([^ ]*)\]/i)) { // Flowerpot inline frame
+					// Get the address/selector, height, and width
+					var id = fp.p['rel'].replace(/.*iframe\[([^ ]*)\].*/i, '$1');
+					var f_size = {};
 					if (fp.p['rel'].match(/height\[([^ ]*)\]/i))
-						div_size.height = fp.p['rel'].replace(/.*height\[([^ ]*)\].*/i, '$1');
+						f_size.height = fp.p['rel'].replace(/.*height\[([^ ]*)\].*/i, '$1');
 					if (fp.p['rel'].match(/width\[([^ ]*)\]/i))
-						div_size.width = fp.p['rel'].replace(/.*width\[([^ ]*)\].*/i, '$1');
+						f_size.width = fp.p['rel'].replace(/.*width\[([^ ]*)\].*/i, '$1');
 					$(this).flowerpot({}, {
-						div_id: id,
-						size: div_size,
+						i_content: id,
+						size: f_size,
+						type: 'iframe'
+					});
+				} else if (fp.p['rel'].match(/div\[([^ ]*)\]/i)) { // Flowerpot inline div
+					// Get the address/selector, height, and width
+					var id = fp.p['rel'].replace(/.*div\[([^ ]*)\].*/i, '$1');
+					var d_size = {};
+					if (fp.p['rel'].match(/height\[([^ ]*)\]/i))
+						d_size.height = fp.p['rel'].replace(/.*height\[([^ ]*)\].*/i, '$1');
+					if (fp.p['rel'].match(/width\[([^ ]*)\]/i))
+						d_size.width = fp.p['rel'].replace(/.*width\[([^ ]*)\].*/i, '$1');
+					$(this).flowerpot({}, {
+						i_content: id,
+						size: d_size,
 						type: 'div'
 					});
 				} else if (fp.p['rel'].match(/gallery\[([^ ]*)\]/i)) { // Flowerpot image gallery
@@ -324,8 +338,12 @@ the_flowerpot = new fp_o();
 		else
 			fp.p['speed'] = fp.s['anim_speed'];
 		fp.p['gal_size'] = 0;
-		if (fp.p['type'] == 'div')
-			$('#' + fp.p['div_id']).swap('#flowerpotjs-div-swap');
+		if (fp.p['type'] == 'div') {
+			if (fp.p['ajax'])
+				$('#flowerpotjs-div-inline').empty();
+			else
+				$(fp.p['i_content']).swap('#flowerpotjs-div-swap');
+		}
 		
 		if ($.browser.msie && $.browser.version < 8)
 			html_objects.css('visibility', 'visible');
@@ -415,6 +433,11 @@ the_flowerpot = new fp_o();
 				height = height * (max_width / width);
 				width = max_width;
 			}
+		}
+		
+		if (fp.p['type'] == 'iframe') {
+			height -= 10;
+			width -= 10;
 		}
 		
 		object.height(height + 'px');
@@ -572,7 +595,19 @@ the_flowerpot = new fp_o();
 			if (fp.p['type'] == 'gallery')
 				controls = '<div id="flowerpotjs-controls"><span id="flowerpotjs-prev-link-bg" class="flowerpotjs-gallery-link-bg"></span><a href="#prev" id="flowerpotjs-prev-link" class="flowerpotjs-gallery-link" rel="' + fp.p['rel'] + '">' + fp.l['previous'] + '</a><span id="flowerpotjs-next-link-bg" class="flowerpotjs-gallery-link-bg"></span><a href="#next" id="flowerpotjs-next-link" class="flowerpotjs-gallery-link" rel="' + fp.p['rel'] + '">' + fp.l['next'] + '</a></div>';
 		} else if (fp.p['type'] == 'div') { // Inline div
+			// Figure out if we're using ajax or inline content
+			var id = fp.p['i_content'];
+			if (id.substr(0, 1) == '#') {
+				id = id.substr(1, id.length - 1);
+				fp.p['ajax'] = false;
+			} else {
+				fp.p['ajax'] = true;
+			}
 			content = '<div id="flowerpotjs-div-inline"><div id="flowerpotjs-div-swap" style="display: none;"></div></div>';
+		} else if (fp.p['type'] == 'iframe') { // Inline frame
+			// Figure out if we're using ajax or inline content
+			fp.p['i_content'];
+			content = '<iframe id="flowerpotjs-iframe-inline" src="' + fp.p['i_content'] + '"></iframe>';
 		}
 		
 		// If there's a description available, add it to the HTML
@@ -632,7 +667,25 @@ the_flowerpot = new fp_o();
 			}
 		} else if (fp.p['type'] == 'div') {
 			fp.resize('#flowerpotjs-div-inline', fp.p['size']);
-			$('#' + fp.p['div_id']).swap('#flowerpotjs-div-swap');
+			if (fp.p['ajax']) {
+				$.ajax({
+					type: 'GET',
+					async: false,
+					url: fp.p['i_content'],
+					dataType: 'text',
+					success: function(result) {
+						$('#flowerpotjs-div-inline').html(result);
+					},
+					error: function(request, status, error) {
+						$('#flowerpotjs-div-inline').html('AJAX error');
+					}
+				});
+			} else {
+				$(fp.p['i_content']).swap('#flowerpotjs-div-swap');
+			}
+			fp.show();
+		} else if (fp.p['type'] == 'iframe') {
+			fp.resize('#flowerpotjs-iframe-inline', fp.p['size']);
 			fp.show();
 		}
 		fp_contents.queue(function() {

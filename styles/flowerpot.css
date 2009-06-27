@@ -127,3 +127,7 @@
 		right: 32px;
 		text-align: right;
 	}
+
+#flowerpotjs-iframe-inline {
+	border: none;
+}
