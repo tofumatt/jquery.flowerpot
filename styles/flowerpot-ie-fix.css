@@ -1,3 +1,28 @@
+/**
+ * The Flowerpot
+ *
+ * A jQuery plugin to overlay images, inline content, and more.
+ *
+ * @package     The Flowerpot
+ * @author      Matthew Riley MacPherson
+ * @copyright   Copyright (c) 2009, Matthew Riley MacPherson
+ * @license     New BSD License (http://www.opensource.org/licenses/bsd-license.php)
+ * @link        http://flowerpot.googlecode.com/
+ * @since       Version 0.1
+ */
+/* HTML plants in an overlayed pot! */
+
+/**
+ * IE 6 CSS Fixes
+ *
+ * Fixes CSS problems with IE 6 + The Flowerpot. Kept in
+ * a separate stylesheet to keep the main stylesheet
+ * valid, but you can add "* html" in front of all the
+ * selectors in this file and move it to a global stylesheet
+ * if you'd rather.
+ *
+ */
+
 #flowerpotjs-overlay {
 	position: absolute;
 }

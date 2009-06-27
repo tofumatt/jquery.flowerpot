@@ -41,12 +41,16 @@ function fp_o() {
 		anim_speed: 500, // animation time in ms
 		anim_multiplier: 3, // set to 1 to disable the shiftKey animation slowdown
 		aux_opacity: 0.75, // opacity of the other backgrounds
+		blur_onclick: true, // blur the element that invokes a Flowerpot
 		close_img: 'flowerpot-close.png',
 		images_dir: 'images/', // path to your images folder -- can absolute or relative
 		overlay_opacity: 0.5 // opacity of the overlay background
 	};
 	if ($.browser.msie && $.browser.version < 7)
-		this.s['close_img'] = 'flowerpot-close-ie6.png';
+		this.s['close_img'] = 'flowerpot-close-ie6.png'; // Optional: rather than apply
+														 // a png hack for IE 6, there's
+														 // an option to load a non-alpha
+														 // image
 }
 
 // Create The Flowerpot object
@@ -111,8 +115,12 @@ the_flowerpot = new fp_o();
 		fp.l = $.extend(fp.l, locale);
 		fp.s = $.extend(fp.s, settings);
 		
+		// HTML to use when inserting The Flowerpot into the DOM
 		var flowerpot_html = '<div id="flowerpotjs-overlay" style="display: none;"><span style="display: none;">' + fp.l['loading'] + '</span></div><div id="flowerpotjs-contents" style="display: none;"></div>';
 		$('body').append(flowerpot_html);
+		
+		// Hide the overlay with opacity and style
+		// the description span
 		$('#flowerpotjs-overlay').css({opacity: 0});
 		$('#flowerpotjs-overlay span').css({
 			'-moz-border-radius': '3px',
@@ -125,7 +133,8 @@ the_flowerpot = new fp_o();
 				fp.p['slow_anim'] = true;
 			if (event.button == 0 && fp.p['ready']) {
 				fp.hide();
-				$(this).trigger('blur');
+				if (fp.s['blur_onclick'])
+					$(this).trigger('blur');
 				event.preventDefault();
 			}
 			fp.p['slow_anim'] = false;
@@ -162,7 +171,9 @@ the_flowerpot = new fp_o();
 				} else { // Single Flowerpot image
 					$(this).flowerpot();
 				}
-				$(this).trigger('blur');
+				
+				if (fp.s['blur_onclick'])
+					$(this).trigger('blur');
 				event.preventDefault();
 			}
 			fp.p['slow_anim'] = false;
@@ -176,7 +187,7 @@ the_flowerpot = new fp_o();
 					fp.gallery_move('prev');
 			}
 			fp.p['slow_anim'] = false;
-			$(this).trigger('blur');
+			$(this).trigger('blur'); // Disable outline for controls
 			event.preventDefault();
 		});
 		$('#flowerpotjs-next-link').live('click', function(event) { // Gallery control: next image
@@ -188,12 +199,14 @@ the_flowerpot = new fp_o();
 					fp.gallery_move('next');
 			}
 			fp.p['slow_anim'] = false;
-			$(this).trigger('blur');
+			$(this).trigger('blur'); // Disable outline for controls
 			event.preventDefault();
 		});
 		
 		// Keyboard Events
 		$(document).keydown(function(event) {
+			// Don't modify events we aren't handling
+			var prevent_default = false;
 			if (event.shiftKey)
 				fp.p['slow_anim'] = true; // Little OS X-like Easter Egg -- slows down
 										  // animations when holding the Shift key ^_^
@@ -206,38 +219,37 @@ the_flowerpot = new fp_o();
 						fp.p['dom_img'] = 0;
 						fp.hide();
 					}
+					prevent_default = true;
 					break;
 				case 35: // End (loads last gallery image)
 					if (fp.p['ready'] && fp.p['gal_size'] > 0) {
 						fp.gallery_move(fp.p['gal_size'] - 1);
-						$(this).trigger('blur');
-						event.preventDefault();
+						prevent_default = true;
 					}
 					break;
 				case 36: // Home (loads first gallery image)
 					if (fp.p['ready'] && fp.p['gal_size'] > 0) {
 						fp.gallery_move(0);
-						$(this).trigger('blur');
-						event.preventDefault();
+						prevent_default = true;
 					}
 					break;
 				case 37: // Left Arrow (loads previous gallery image)
 					if (fp.p['ready'] && fp.p['gal_size'] > 0) {
 						fp.gallery_move('prev');
-						$(this).trigger('blur');
-						event.preventDefault();
+						prevent_default = true;
 					}
 					break;
 				case 39: // Right Arrow (loads next gallery image)
 					if (fp.p['ready'] && fp.p['gal_size'] > 0) {
 						fp.gallery_move('next');
-						$(this).trigger('blur');
-						event.preventDefault();
+						prevent_default = true;
 					}
 					break;
 				default:
 					break;
 			}
+			if (prevent_default)
+				event.preventDefault();
 			fp.p['slow_anim'] = false;
 		});
 		
@@ -250,7 +262,6 @@ the_flowerpot = new fp_o();
 				else if ($.browser.msie && $.browser.version < 7) // The overlay for IE 6 is sized in JavaScript,
 																  // so it needs to be recalculated
 					fp.ie6_resize_overlay();
-				$(this).trigger('blur');
 				event.preventDefault();
 			}
 		});
@@ -372,18 +383,22 @@ the_flowerpot = new fp_o();
 		var height;
 		var object = $(selector);
 		var width;
-		if (typeof(size) == 'undefined') {
-			height = fp.p['dom_img'].height;
-			width = fp.p['dom_img'].width;
-		} else {
-			height = size.height;
-			width = size.width;
-		}
 		var window_height = $(window).height();
 		var window_width = $(window).width();
 		
+		// The max height + width should allow for some space
+		// between the edge of the viewport and The Flowerpot's
 		var max_height = window_height - window_height / 5;
 		var max_width = window_width - window_width / 5;
+		
+		if (!size) {
+			height = fp.p['dom_img'].height;
+			width = fp.p['dom_img'].width;
+		} else {
+			// Use the max size allowed if a size isn't set
+			height = (size.height) ? size.height : max_height;
+			width = (size.width) ? size.width : max_width;
+		}
 		
 		// Check to make sure the image isn't too big for the viewport
 		if (width > max_width) {
@@ -402,19 +417,10 @@ the_flowerpot = new fp_o();
 			}
 		}
 		
-		if (typeof(height) != 'undefined')
-			object.height(height + 'px');
-		if (typeof(width) != 'undefined')
-			object.width(width + 'px');
-		
-		if (typeof(height) == 'undefined')
-			fp_contents.css('height', 'auto');
-		else
-			fp_contents.css('height', height + 'px');
-		if (typeof(width) == 'undefined')
-			fp_contents.css('width', 'auto');
-		else
-			fp_contents.css('width', width + 'px');
+		object.height(height + 'px');
+		fp_contents.css('height', height + 'px');
+		object.width(width + 'px');
+		fp_contents.css('width', width + 'px');
 		
 		if ($.browser.msie && $.browser.version < 7) {
 			fp.ie6_resize_overlay();
@@ -517,12 +523,6 @@ the_flowerpot = new fp_o();
 		var gallery_links = $('.flowerpotjs-gallery-link,.flowerpotjs-gallery-link-bg');
 		var html_objects = $('object,embed');
 		var overlay = $('#flowerpotjs-overlay');
-		
-		fp.s['anim_speed'] = fp.s['anim_speed'];
-		fp.s['anim_multiplier'] = fp.s['anim_multiplier'];
-		fp.s['close_img'] = fp.s['close_img'];
-		fp.s['images_dir'] = fp.s['images_dir'];
-		fp.s['overlay_opacity'] = fp.s['overlay_opacity'];
 		
 		if (fp.p['slow_anim'])
 			fp.p['speed'] = fp.s['anim_speed'] * fp.s['anim_multiplier'];
@@ -671,4 +671,8 @@ the_flowerpot = new fp_o();
 	$(document).ready(function() {
 		fp.init();
 	});
-})(jQuery, the_flowerpot);
+})(jQuery, the_flowerpot); // Load in the jQuery global variable to maintain compability,
+						   // i.e. in case another framework or variable is using "$".
+						   // Load in the_flowerpot (The Flowerpot's global var) so
+						   // we can use a shorthand inside the code, saving a little
+						   // space and typing
