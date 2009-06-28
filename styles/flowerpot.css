@@ -119,12 +119,12 @@
 	}
 	
 	#flowerpotjs-prev-link, #flowerpotjs-prev-link-bg {
-		left: 32px;
+		left: 8px;
 		text-align: left;
 	}
 	
 	#flowerpotjs-next-link, #flowerpotjs-next-link-bg {
-		right: 32px;
+		right: 8px;
 		text-align: right;
 	}
 
