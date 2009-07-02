@@ -14,58 +14,57 @@
  */
 // HTML plants in an overlayed pot!
 
-// The Flowerpot object. Data is stored in arrays to allow jQuery
-// to override settings with $.extend()
-function fp_o() {
-	this.l = { // Locale html/text strings (These are
-			   // Unicode -- you'll wanna override 'next'
-			   // and 'previous' if your output isn't)
-		'ajax_error': 'An error occurred during the request.', // HTML to display when we
-															   // have a catchable AJAX error
-		'close': 'Close', // alt text for close image (should be text, not html)
-		'loading': 'Loading... "Esc" to close', // html that appears when the image is loading
-		'next': 'Next →', // html inside the gallery "next" link
-		'previous': '← Previous' // html inside the gallery "previous" link
+(function($) {
+	// The Flowerpot object. Data is stored in arrays to allow jQuery
+	// to override settings with $.extend()
+	$.the_flowerpot = new function() {
+		this.l = { // Locale html/text strings (These are
+				   // Unicode -- you'll wanna override 'next'
+				   // and 'previous' if your output isn't)
+			'ajax_error': 'An error occurred during the request.', // HTML to display when we
+																   // have a catchable AJAX error
+			'close': 'Close', // alt text for close image (should be text, not html)
+			'loading': 'Loading... "Esc" to close', // html that appears when the image is loading
+			'next': 'Next →', // html inside the gallery "next" link
+			'previous': '← Previous' // html inside the gallery "previous" link
+		};
+		this.p = { // Internal data members -- you can modify them dynamically
+				   // when you invoke a Flowerpot
+			ajax: false,
+			description: false,
+			dom_img: 0,
+			gal_i: 0,
+			gal_s: false,
+			gal_size: 0,
+			old_set: false,
+			overlay: false,
+			ready: false,
+			rel: '',
+			size: {},
+			slow_anim: false,
+			speed: 0,
+			src: false,
+			type: 'image'
+		};
+		this.s = { // User-customizable settings
+			anim_speed: 500, // animation time in ms
+			anim_multiplier: 3, // set to 1 to disable the shiftKey animation slowdown
+			aux_opacity: 0.75, // opacity of the other backgrounds
+			blur_onclick: true, // blur the element that invokes a Flowerpot
+			close_img: 'flowerpot-close.png',
+			images_dir: 'images/', // path to your images folder -- can absolute or relative
+			overlay_opacity: 0.5 // opacity of the overlay background
+		};
+		if ($.browser.msie && $.browser.version < 7)
+			this.s['close_img'] = 'flowerpot-close-ie6.png'; // Optional: rather than apply
+															 // a png hack for IE 6, there's
+															 // an option to load a non-alpha
+															 // image
 	};
-	this.p = { // Internal data members -- you can modify them dynamically
-			   // when you invoke a Flowerpot
-		ajax: false,
-		description: false,
-		dom_img: 0,
-		gal_i: 0,
-		gal_s: false,
-		gal_size: 0,
-		old_set: false,
-		overlay: false,
-		ready: false,
-		rel: '',
-		size: {},
-		slow_anim: false,
-		speed: 0,
-		src: false,
-		type: 'image'
-	};
-	this.s = { // User-customizable settings
-		anim_speed: 500, // animation time in ms
-		anim_multiplier: 3, // set to 1 to disable the shiftKey animation slowdown
-		aux_opacity: 0.75, // opacity of the other backgrounds
-		blur_onclick: true, // blur the element that invokes a Flowerpot
-		close_img: 'flowerpot-close.png',
-		images_dir: 'images/', // path to your images folder -- can absolute or relative
-		overlay_opacity: 0.5 // opacity of the overlay background
-	};
-	if ($.browser.msie && $.browser.version < 7)
-		this.s['close_img'] = 'flowerpot-close-ie6.png'; // Optional: rather than apply
-														 // a png hack for IE 6, there's
-														 // an option to load a non-alpha
-														 // image
-}
-
-// Create The Flowerpot object
-the_flowerpot = new fp_o();
-
-(function($, fp) {
-	fp_o.fn = fp_o.prototype;
+	
+	// Set a local variable to reference The Flowerpot
+	// to save space (and typing)
+	var fp = $.the_flowerpot;
 	
 	// --------------------------------------------------------------------
 	
@@ -78,7 +77,7 @@ the_flowerpot = new fp_o();
 	 * @access	public
 	 * @return	void
 	 */
-	fp_o.fn.ie6_resize_overlay = function() {
+	fp.ie6_resize_overlay = function() {
 		var overlay = $('#flowerpotjs-overlay');
 		overlay.css('height', $(document).height());
 		overlay.css('width', $(window).width());
@@ -96,12 +95,12 @@ the_flowerpot = new fp_o();
 	 * @param	string		selector		jQuery selector of element to resize
 	 * @return	void
 	 */
-	fp_o.fn.image = function(selector) {
+	fp.image = function(selector) {
 		fp.p['dom_img'] = new Image();
 		// Create an event listener to resize the image when the
 		// image loads (in case the image is bigger than the viewport)
 		$(fp.p['dom_img']).load(function() {
-			fp.resize(selector, fp.p['size']);
+			fp.resize(selector);
 		});
 		// Set the internal DOM image based on the image tag
 		// inside The Flowerpot
@@ -123,7 +122,7 @@ the_flowerpot = new fp_o();
 	 * @param	array		locale			array of locale html/text to override defaults
 	 * @return	void
 	 */
-	fp_o.fn.init = function(settings, locale) {
+	fp.init = function(settings, locale) {
 		// Load custom settings passed via array arguments
 		$.extend(fp.l, locale);
 		$.extend(fp.s, settings);
@@ -252,11 +251,11 @@ the_flowerpot = new fp_o();
 										   // recalculate the image size
 			if (fp.p['ready']) {
 				if (fp.p['type'] == 'image')
-					fp.resize('#flowerpotjs-image', fp.p['size']);
+					fp.resize('#flowerpotjs-image');
 				else if (fp.p['type'] == 'div')
-					fp.resize('#flowerpotjs-div-inline', fp.p['size']);
+					fp.resize('#flowerpotjs-div-inline');
 				else if (fp.p['type'] == 'iframe')
-					fp.resize('#flowerpotjs-iframe-inline', fp.p['size']);
+					fp.resize('#flowerpotjs-iframe-inline');
 				if ($.browser.msie && $.browser.version < 7) // The overlay for IE 6 is sized in JavaScript,
 																  // so it needs to be recalculated
 					fp.ie6_resize_overlay();
@@ -277,7 +276,7 @@ the_flowerpot = new fp_o();
 	 * @param	integer		index		photo index in the gallery array
 	 * @return	void
 	 */
-	fp_o.fn.gallery_move = function(index) {
+	fp.gallery_move = function(index) {
 		if (index === fp.p['gal_i']) // Don't do anything if we're already
 									 // at the requested index
 			return false;
@@ -318,7 +317,7 @@ the_flowerpot = new fp_o();
 	 * @access	public
 	 * @return	void
 	 */
-	fp_o.fn.hide = function() {
+	fp.hide = function() {
 		// We're hiding The Flowerpot, so it's not ready for anything!
 		fp.p['ready'] = false;
 		
@@ -384,7 +383,7 @@ the_flowerpot = new fp_o();
 	 * @param	array		locale		array of locale html/text to override defaults
 	 * @return	void
 	 */
-	fp_o.fn.locale = function(locale) {
+	fp.locale = function(locale) {
 		// Load custom settings passed via array arguments
 		$.extend(fp.l, locale);
 	};
@@ -403,13 +402,18 @@ the_flowerpot = new fp_o();
 	 * @param	object		size			object containing width, height
 	 * @return	void
 	 */
-	fp_o.fn.resize = function(selector, size) {
+	fp.resize = function(selector, size) {
 		var fp_contents = $('#flowerpotjs-contents');
 		var height;
 		var object = $(selector);
 		var width;
 		var window_height = $(window).height();
 		var window_width = $(window).width();
+		
+		// If no size if specified, use the size in
+		// the properties (default behaviour)
+		if (!size)
+			size = fp.p['size'];
 		
 		// The max height + width should allow for some space
 		// between the edge of the viewport and The Flowerpot's
@@ -483,7 +487,7 @@ the_flowerpot = new fp_o();
 	 * @param	array		settings		array of settings to override defaults
 	 * @return	void
 	 */
-	fp_o.fn.settings = function(settings) {
+	fp.settings = function(settings) {
 		// Load custom settings passed via array arguments
 		$.extend(fp.s, settings);
 	};
@@ -499,7 +503,7 @@ the_flowerpot = new fp_o();
 	 * @access	public
 	 * @return	void
 	 */
-	fp_o.fn.show = function() {
+	fp.show = function() {
 		var fp_contents = $('#flowerpotjs-contents');
 		var overlay_span = $('#flowerpotjs-overlay span');
 		
@@ -610,10 +614,7 @@ the_flowerpot = new fp_o();
 		var description = fp.p['description'];
 		if (!description) {
 			description = $('#' + $(this).attr('id') + '-flowerpot-description');
-			if (description.length > 0)
-				description = description.html();
-			else
-				description = $(this).attr('title');
+			description = (description.length > 0) ? description.html() : $(this).attr('title');
 		}
 		
 		// Get the src of the item to put in the gallery
@@ -708,7 +709,7 @@ the_flowerpot = new fp_o();
 				});
 			}
 		} else if (fp.p['type'] == 'div') {
-			fp.resize('#flowerpotjs-div-inline', fp.p['size']);
+			fp.resize('#flowerpotjs-div-inline');
 			if (fp.p['ajax']) { // Set variables here, in case there
 								// are global ajax settings
 				$.ajax({
@@ -730,7 +731,7 @@ the_flowerpot = new fp_o();
 			}
 			fp.show();
 		} else if (fp.p['type'] == 'iframe') {
-			fp.resize('#flowerpotjs-iframe-inline', fp.p['size']);
+			fp.resize('#flowerpotjs-iframe-inline');
 			fp.show();
 		}
 		fp_contents.queue(function() {
@@ -769,8 +770,5 @@ the_flowerpot = new fp_o();
 	$(document).ready(function() {
 		fp.init();
 	});
-})(jQuery, the_flowerpot); // Load in the jQuery global variable to maintain compability,
-						   // i.e. in case another framework or variable is using "$".
-						   // Load in the_flowerpot (The Flowerpot's global var) so
-						   // we can use a shorthand inside the code, saving a little
-						   // space and typing
+})(jQuery); // Load in the jQuery global variable to maintain compability,
+			// i.e. in case another framework or variable is using "$".
