@@ -15,6 +15,15 @@
 // HTML plants in an overlayed pot!
 
 (function($) {
+	// Throw an error if we aren't supplied with jQuery (i.e. if it
+	// doesn't exist)
+	if (!$) {
+		var error = new Error();
+		error.name = 'jQuery not found!'
+		error.message = 'The Flowerpot relies on the jQuery framework (version 1.3 or higher), but it was not found. Get jQuery at http://jquery.com.';
+		throw(error);
+	}
+	
 	// The Flowerpot object. Data is stored in arrays to allow jQuery
 	// to override settings with $.extend()
 	$.the_flowerpot = new function() {
@@ -100,11 +109,11 @@
 		// Create an event listener to resize the image when the
 		// image loads (in case the image is bigger than the viewport)
 		$(fp.p['dom_img']).load(function() {
-			fp.resize(selector);
+			fp.resize('#flowerpotjs-image');
 		});
 		// Set the internal DOM image based on the image tag
 		// inside The Flowerpot
-		fp.p['dom_img'].src = $(selector).attr('src');
+		fp.p['dom_img'].src = $('#flowerpotjs-image').attr('src');
 	};
 	
 	// --------------------------------------------------------------------
@@ -325,16 +334,13 @@
 		fp.p['dom_img'] = 0;
 		
 		// Selectors we'll access a few times
-		var fp_contents = $('#flowerpotjs-contents');
-		var gallery_links = $('.flowerpotjs-gallery-link,.flowerpotjs-gallery-link-bg');
-		var html_objects = $('object,embed');
-		var overlay = $('#flowerpotjs-overlay');
+		var fp_contents = $('#flowerpotjs-contents'),
+		gallery_links = $('.flowerpotjs-gallery-link,.flowerpotjs-gallery-link-bg'),
+		html_objects = $('object,embed'),
+		overlay = $('#flowerpotjs-overlay');
 		
-		// Set the animation speed (in case we're modifying it)
-		if (fp.p['slow_anim'])
-			fp.p['speed'] = fp.s['anim_speed'] * fp.s['anim_multiplier'];
-		else
-			fp.p['speed'] = fp.s['anim_speed'];
+		// Set the current animation speed (and multiply it if slowdown is on)
+		fp.p['speed'] = (fp.p['slow_anim']) ? fp.s['anim_speed'] * fp.s['anim_multiplier'] : fp.s['anim_speed'];
 		
 		// Set things back to the way they were
 		fp.p['gal_size'] = 0;
@@ -403,12 +409,12 @@
 	 * @return	void
 	 */
 	fp.resize = function(selector, size) {
-		var fp_contents = $('#flowerpotjs-contents');
-		var height;
-		var object = $(selector);
-		var width;
-		var window_height = $(window).height();
-		var window_width = $(window).width();
+		var fp_contents = $('#flowerpotjs-contents'),
+		height,
+		object = $(selector),
+		width,
+		window_height = $(window).height(),
+		window_width = $(window).width();
 		
 		// If no size if specified, use the size in
 		// the properties (default behaviour)
@@ -417,8 +423,8 @@
 		
 		// The max height + width should allow for some space
 		// between the edge of the viewport and The Flowerpot's
-		var max_height = window_height - window_height / 5;
-		var max_width = window_width - window_width / 5;
+		var max_height = window_height - window_height / 5,
+		max_width = window_width - window_width / 5;
 		
 		// Use the max size allowed if this isn't an image
 		height = (fp.p['dom_img'].height) ? fp.p['dom_img'].height : max_height;
@@ -505,8 +511,8 @@
 	 * @return	void
 	 */
 	fp.show = function() {
-		var fp_contents = $('#flowerpotjs-contents');
-		var overlay_span = $('#flowerpotjs-overlay span');
+		var fp_contents = $('#flowerpotjs-contents'),
+		overlay_span = $('#flowerpotjs-overlay span');
 		
 		if ($.browser.msie && $.browser.version < 8) {
 			// Object and embed elements (usually Flash) 'under' The Flowerpot
@@ -562,15 +568,11 @@
 		$.extend(true, fp.p, props);
 		
 		// Get the src of the item to put in the gallery
-		if (!fp.p['src']) {
+		if (!fp.p['src'])
 			// If there's a src[value] in the rel attribute, use
 			// that as the src attribute; otherwise, use the
 			// href attribute of the element that invoked The Flowerpot
-			if (fp.p['rel'].match(/src\[([^ ]*)\]/i))
-				fp.p['src'] = fp.p['rel'].replace(/.*src\[([^ ]*)\].*/i, '$1');
-			else
-				fp.p['src'] = $(this).attr('href');
-		}
+			fp.p['src'] = (fp.p['rel'].match(/src\[([^ ]*)\]/i)) ? fp.p['rel'].replace(/.*src\[([^ ]*)\].*/i, '$1') : $(this).attr('href');
 		
 		// Only proceed to animate things if we have an src attribute
 		if (fp.p['src'] && fp.p['src'] != '#') {
@@ -595,17 +597,14 @@
 			});
 			
 			// Selectors we'll access a few times
-			var fp_contents = $('#flowerpotjs-contents');
-			var fp_controls = $('#flowerpotjs-controls');
-			var gallery_links = $('.flowerpotjs-gallery-link,.flowerpotjs-gallery-link-bg');
-			var html_objects = $('object,embed');
-			var overlay = $('#flowerpotjs-overlay');
+			var fp_contents = $('#flowerpotjs-contents'),
+			fp_controls = $('#flowerpotjs-controls'),
+			gallery_links = $('.flowerpotjs-gallery-link,.flowerpotjs-gallery-link-bg'),
+			html_objects = $('object,embed'),
+			overlay = $('#flowerpotjs-overlay');
 			
 			// Set the current animation speed (and multiply it if slowdown is on)
-			if (fp.p['slow_anim'])
-				fp.p['speed'] = fp.s['anim_speed'] * fp.s['anim_multiplier'];
-			else
-				fp.p['speed'] = fp.s['anim_speed'];
+			fp.p['speed'] = (fp.p['slow_anim']) ? fp.s['anim_speed'] * fp.s['anim_multiplier'] : fp.s['anim_speed'];
 			
 			// Load a description. The Flowerpot looks for a description from three places:
 			//
@@ -634,23 +633,26 @@
 			fp.p['overlay'] = true;
 			
 			// Build the HTML for the inside of the overlay
-			var content = '';
-			var controls = '';
-			if (fp.p['type'] == 'image') { // Image
-				content = '<img alt="Image overlay" src="' + fp.p['src'] + '" id="flowerpotjs-image" />';
-			} else if (fp.p['type'] == 'div') { // Inline div
-				// Figure out if we're using ajax or inline content
-				var id = fp.p['src'];
-				if (id.substr(0, 1) == '#') {
-					id = id.substr(1, id.length - 1);
-					fp.p['ajax'] = false;
-				} else {
-					fp.p['ajax'] = true;
-				}
-				content = '<div id="flowerpotjs-div-inline"><div id="flowerpotjs-div-swap" style="display: none;"></div></div>';
-			} else if (fp.p['type'] == 'iframe') { // Inline frame
-				// Figure out if we're using ajax or inline content
-				content = '<iframe id="flowerpotjs-iframe-inline" src="' + fp.p['src'] + '"></iframe>';
+			var content = '',
+			controls = '';
+			switch (fp.p['type']) {
+				case 'image':
+					content = '<img alt="Image overlay" src="' + fp.p['src'] + '" id="flowerpotjs-image" />';
+					break;
+				case 'div':
+					// Figure out if we're using ajax or inline content
+					var id = fp.p['src'];
+					if (id.substr(0, 1) == '#') {
+						id = id.substr(1, id.length - 1);
+						fp.p['ajax'] = false;
+					} else {
+						fp.p['ajax'] = true;
+					}
+					content = '<div id="flowerpotjs-div-inline"><div id="flowerpotjs-div-swap" style="display: none;"></div></div>';
+					break;
+				case 'iframe':
+					content = '<iframe id="flowerpotjs-iframe-inline" src="' + fp.p['src'] + '"></iframe>';
+					break;
 			}
 			
 			// If this is a gallery with more than one item, add
@@ -690,55 +692,60 @@
 				'-moz-border-radius': '3px',
 				'-webkit-border-radius': '2px'
 			}).fadeIn(fp.p['speed']);
-			$('#flowerpotjs-prev-link-bg').css({height: $('#flowerpotjs-prev-link').height()});
-			$('#flowerpotjs-next-link-bg').css({height: $('#flowerpotjs-next-link').height()});
 			
 			// And we're off to the races!
 			// Load the remote content into the DOM, or swap the inline div with a placeholder
-			if (fp.p['type'] == 'image') {
-				if ($.browser.opera) { // Opera acts a little weird with .load(), so we have
-									   // a special case for it
-					fp.image('#flowerpotjs-image');
-					fp.show();
-				} else {
-					$('#flowerpotjs-image').load(function callback(event) {
-						if (fp.p['type'] == 'image')
-							fp.image('#flowerpotjs-image');
-						if ($.browser.msie && $.browser.version >= 7) {
-							fp.show();
-						} else {
-							$(fp.p['dom_img']).load(function() {
+			switch (fp.p['type']) {
+				case 'image':
+					if ($.browser.opera) { // Opera acts a little weird with .load(), so we have
+										   // a special case for it
+						fp.image();
+						fp.show();
+					} else {
+						$('#flowerpotjs-image').load(function callback(event) {
+							if (fp.p['type'] == 'image')
+								fp.image();
+							if ($.browser.msie && $.browser.version >= 7) {
 								fp.show();
-							});
-						}
-					});
-				}
-			} else if (fp.p['type'] == 'div') {
-				fp.resize('#flowerpotjs-div-inline');
-				if (fp.p['ajax']) { // Set variables here, in case there
-									// are global ajax settings
-					$.ajax({
-						type: 'GET',
-						async: false,
-						url: fp.p['src'],
-						dataType: 'text',
-						success: function(result) { // We expect HTML (plaintext) from
-													// a GET request...
-							$('#flowerpotjs-div-inline').html(result);
-						},
-						error: function(request, status, error) { // ... so if we don't get
-																  // what we expected, complain
-							$('#flowerpotjs-div-inline').html(fp.l['ajax_error']);
-						}
-					});
-				} else {
-					$(fp.p['src']).swap('#flowerpotjs-div-swap');
-				}
-				fp.show();
-			} else if (fp.p['type'] == 'iframe') {
-				fp.resize('#flowerpotjs-iframe-inline');
-				fp.show();
+							} else {
+								$(fp.p['dom_img']).load(function() {
+									fp.show();
+								});
+							}
+						});
+					}
+					break;
+				case 'div':
+					fp.resize('#flowerpotjs-div-inline');
+					if (fp.p['ajax']) { // Set variables here, in case there
+										// are global ajax settings
+						$.ajax({
+							type: 'GET',
+							async: false,
+							url: fp.p['src'],
+							dataType: 'text',
+							success: function(result) { // We expect HTML (plaintext) from
+														// a GET request...
+								$('#flowerpotjs-div-inline').html(result);
+							},
+							error: function(request, status, error) { // ... so if we don't get
+																	  // what we expected, complain
+								$('#flowerpotjs-div-inline').html(fp.l['ajax_error']);
+							}
+						});
+					} else {
+						$(fp.p['src']).swap('#flowerpotjs-div-swap');
+					}
+					fp.show();
+					break;
+				case 'iframe':
+					fp.resize('#flowerpotjs-iframe-inline');
+					fp.show();
+					break;
 			}
+			
+			// Just in case the overlay isn't there, load it in after the
+			// contents have been loaded
 			fp_contents.queue(function() {
 				fp_contents.dequeue();
 				overlay.show();
@@ -746,6 +753,16 @@
 		} else {
 			// Reset the gallery count, as we aren't loading anything
 			fp.p['gal_size'] = 0;
+			fp.p['type'] = 'image';
+			
+			// Hide the overlay -- useful if we're in a gallery
+			fp.hide();
+			
+			// Throw an error so the page creator knows something's up
+			var error = new Error();
+			error.name = 'Invalid or null src value (nothing to load)';
+			error.message = 'Attempted to load an overlay using The Flowerpot, but the src value was invalid or null.';
+			throw(error);
 		}
 		
 		return this;
@@ -765,9 +782,9 @@
 	 */
 	$.fn.swap = function(element_b) {
 		element_b = $(element_b)[0];
-		var element_a = this[0];
+		var element_a = this[0],
+		temp = element_a.parentNode.insertBefore(document.createTextNode(''), element_a);
 		
-		var temp = element_a.parentNode.insertBefore(document.createTextNode(''), element_a);
 		element_b.parentNode.insertBefore(element_a, element_b);
 		temp.parentNode.insertBefore(element_b, temp);
 		temp.parentNode.removeChild(temp);
@@ -780,4 +797,4 @@
 		fp.init();
 	});
 })(jQuery); // Load in the jQuery global variable to maintain compability,
-			// i.e. in case another framework or variable is using "$".
+			// i.e. in case another framework or variable is using "$"
