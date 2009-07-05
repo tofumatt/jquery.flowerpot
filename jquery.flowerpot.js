@@ -17,12 +17,8 @@
 (function($) {
 	// Throw an error if we aren't supplied with jQuery (i.e. if it
 	// doesn't exist)
-	if (!$) {
-		var error = new Error();
-		error.name = 'jQuery not found!'
-		error.message = 'The Flowerpot relies on the jQuery framework (version 1.3 or higher), but it was not found. Get jQuery at http://jquery.com.';
-		throw(error);
-	}
+	if (!$)
+		throw('The Flowerpot relies on the jQuery framework (version 1.3 or higher), but it was not found. Get jQuery at http://jquery.com.');
 	
 	// The Flowerpot object. Data is stored in arrays to allow jQuery
 	// to override settings with $.extend()
@@ -759,10 +755,7 @@
 			fp.hide();
 			
 			// Throw an error so the page creator knows something's up
-			var error = new Error();
-			error.name = 'Invalid or null src value (nothing to load)';
-			error.message = 'Attempted to load an overlay using The Flowerpot, but the src value was invalid or null.';
-			throw(error);
+			throw('Attempted to load an overlay using The Flowerpot, but the src value was invalid or null.');
 		}
 		
 		return this;
