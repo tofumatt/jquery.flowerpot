@@ -53,27 +53,32 @@
 		z-index: 101;
 	}
 
-#flowerpotjs-close {
-	background: transparent;
+#flowerpotjs-close-container {
+	background: black;
+	border: 1px solid white;
 	display: block;
-	height: 32px;
+	height: 18px;
 	margin: 0;
 	outline: none !important;
 	padding: 0;
 	position: absolute;
-	right: -16px;
-	top: -15px;
-	width: 32px;
+	top: -1px;
 	z-index: 104;
 }
 	
-	#flowerpotjs-close img {
-		border: none !important;
+	#flowerpotjs-close {
+		color: white;
+		display: block;
+		font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Helvetica, Arial, sans-serif;
+		font-size: 14px;
+		font-weight: bold;
 		margin: 0;
-		padding: 0;
+		padding: 2px 4px;
+		text-align: center;
+		text-decoration: none !important;
 		z-index: 104;
 	}
-	
+
 #flowerpotjs-contents {
 	background: white;
 	border: 1px solid black;
@@ -84,7 +89,6 @@
 }
 
 #flowerpotjs-description, #flowerpotjs-description-bg {
-	bottom: -2em;
 	color: white;
 	display: block;
 	font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Helvetica, Arial, sans-serif;
@@ -133,4 +137,8 @@
 
 #flowerpotjs-iframe-inline {
 	border: none;
+}
+
+#flowerpotjs-media {
+	background: black;
 }

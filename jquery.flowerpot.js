@@ -15,23 +15,18 @@
 // HTML plants in an overlayed pot!
 
 (function($) {
-	// Throw an error if we aren't supplied with jQuery (i.e. if it
-	// doesn't exist)
-	if (!$)
-		throw('The Flowerpot relies on the jQuery framework (version 1.3 or higher), but it was not found. Get jQuery at http://jquery.com.');
-	
 	// The Flowerpot object. Data is stored in arrays to allow jQuery
 	// to override settings with $.extend()
 	$.the_flowerpot = new function() {
 		this.l = { // Locale html/text strings (These are
 				   // Unicode -- you'll wanna override 'next'
 				   // and 'previous' if your output isn't)
-			'ajax_error': 'An error occurred during the request.', // HTML to display when we
+			ajax_error: 'An error occurred during the request.', // HTML to display when we
 																   // have a catchable AJAX error
-			'close': 'Close', // alt text for close image (should be text, not html)
-			'loading': 'Loading... "Esc" to close', // html that appears when the image is loading
-			'next': 'Next →', // html inside the gallery "next" link
-			'previous': '← Previous' // html inside the gallery "previous" link
+			close: 'Close', // html for close link
+			loading: 'Loading... "Esc" to close', // html that appears when the image is loading
+			next: 'Next →', // html inside the gallery "next" link
+			previous: '← Previous' // html inside the gallery "previous" link
 		};
 		this.p = { // Internal data members -- you can modify them dynamically
 				   // when you invoke a Flowerpot
@@ -56,15 +51,10 @@
 			anim_multiplier: 3, // set to 1 to disable the shiftKey animation slowdown
 			aux_opacity: 0.75, // opacity of the other backgrounds
 			blur_onclick: true, // blur the element that invokes a Flowerpot
-			close_img: 'flowerpot-close.png',
+			detect_type: true, // Automatically detect types based on href
 			images_dir: 'images/', // path to your images folder -- can absolute or relative
 			overlay_opacity: 0.5 // opacity of the overlay background
 		};
-		if ($.browser.msie && $.browser.version < 7)
-			this.s['close_img'] = 'flowerpot-close-ie6.png'; // Optional: rather than apply
-															 // a png hack for IE 6, there's
-															 // an option to load a non-alpha
-															 // image
 	};
 	
 	// Set a local variable to reference The Flowerpot
@@ -346,6 +336,7 @@
 			else
 				$(fp.p['src']).swap('#flowerpotjs-div-swap');
 		}
+		$('#flowerpotjs-media').empty(); // Empty the media div to prevent "invisible" playback
 		if ($.browser.msie && $.browser.version < 8)
 			html_objects.css('visibility', 'visible');
 		
@@ -508,6 +499,8 @@
 	 */
 	fp.show = function() {
 		var fp_contents = $('#flowerpotjs-contents'),
+		fp_close_container = $('#flowerpotjs-close-container'),
+		fp_description = $('#flowerpotjs-description'),
 		overlay_span = $('#flowerpotjs-overlay span');
 		
 		if ($.browser.msie && $.browser.version < 8) {
@@ -519,17 +512,17 @@
 		
 		overlay_span.fadeOut(fp.p['speed']);
 		fp_contents.fadeIn(fp.p['speed']);
+		$('#flowerpotjs-description,#flowerpotjs-description-bg').css({bottom: '-' + parseInt(fp_description.height() * 1.25) + 'px'});
+		fp_close_container.css({right: '-' + parseInt(fp_close_container.width() + 10) + 'px'});
+		// The description has a transparent background set with JavaScript;
+		// we position an empty div behind it and assign the description's
+		// height to the empty div (we also set how far away the description
+		// should be from the contents)
+		$('#flowerpotjs-description-bg').css({height: parseInt(fp_description.height())});
 		fp_contents.queue(function() {
 			fp_contents.dequeue();
 			overlay_span.dequeue();
 			overlay_span.hide();
-			// The description has a transparent background set with JavaScript;
-			// we position an empty div behind it and assign the description's
-			// height to the empty div.
-			$('#flowerpotjs-description-bg').animate({
-				height: $('#flowerpotjs-description').height()
-			}, fp.p['speed'] / 2);
-			$('#flowerpotjs-close').fadeIn(parseInt(fp.p['speed'] / 2));
 		});
 		
 		fp.p['ready'] = true;
@@ -576,11 +569,31 @@
 			fp.p['old_set'] = (!fp.p['old_set'] && settings) ? $.extend(fp.p['old_set'], fp.s) : false;
 			$.extend(fp.s, settings);
 			
-			// Check for the type to load (if neither are true it's an image)
-			if (fp.p['rel'].match(/iframe/i)) // Flowerpot inline frame
-				fp.p['type'] = 'iframe';
-			else if (fp.p['rel'].match(/div/i)) // Flowerpot inline div
+			// Try to detect the type of overlay based on the src value
+			if (fp.s['detect_type']) {
+				if (fp.p['src'].match(/\.[png|jpg|jpeg|gif|bmp]/i))
+					fp.p['type'] = 'image';
+				else if (fp.p['src'].substr(0, 1) == '#' || fp.p['src'].match(window.location.host))
+					fp.p['type'] = 'div';
+				else if (fp.p['src'].match(/vimeo\.com/i))
+					fp.p['type'] = 'vimeo';
+				else if (fp.p['src'].match(/youtube\.com/i))
+					fp.p['type'] = 'youtube';
+				else
+					fp.p['type'] = 'iframe';
+			}
+			
+			// Check for the type to load (overrides automatic type detection)
+			if (fp.p['rel'].match(/image/i)) // image (mostly useful for overriding detect_type)
+				fp.p['type'] = 'image';
+			else if (fp.p['rel'].match(/div/i)) // inline/AJAX content
 				fp.p['type'] = 'div';
+			else if (fp.p['rel'].match(/iframe/i)) // inline frame
+				fp.p['type'] = 'iframe';
+			else if (fp.p['rel'].match(/vimeo/i)) // vimeo video
+				fp.p['type'] = 'vimeo';
+			else if (fp.p['rel'].match(/youtube/i)) // youtube video
+				fp.p['type'] = 'youtube';
 			
 			// Check for explicitly set height/width attributes
 			var f_size = {};
@@ -632,9 +645,6 @@
 			var content = '',
 			controls = '';
 			switch (fp.p['type']) {
-				case 'image':
-					content = '<img alt="Image overlay" src="' + fp.p['src'] + '" id="flowerpotjs-image" />';
-					break;
 				case 'div':
 					// Figure out if we're using ajax or inline content
 					var id = fp.p['src'];
@@ -649,6 +659,21 @@
 				case 'iframe':
 					content = '<iframe id="flowerpotjs-iframe-inline" src="' + fp.p['src'] + '"></iframe>';
 					break;
+				case 'image':
+					content = '<img alt="Image overlay" src="' + fp.p['src'] + '" id="flowerpotjs-image" />';
+					break;
+				case 'vimeo':
+					var o_size = $.extend({width: 400, height: 300}, fp.p['size']);
+					
+					fp.p['src'] = fp.p['src'].replace(/https?:\/\/(www\.)?vimeo\.com\/(\d*)/i, '$2');
+					content = '<div id="flowerpotjs-media"><object id="flowerpotjs-media-vimeo" name="flowerpotjs-media-vimeo" width="' + o_size.width + '" height="' + o_size.height + '"><param name="allowfullscreen" value="true"><param name="allowscriptaccess" value="always"><param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=' + fp.p['src'] + '&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;fullscreen=1" /><embed src="http://vimeo.com/moogaloop.swf?clip_id=' + fp.p['src'] + '&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="' + o_size.width + '" height="' + o_size.height + '"></embed></object></div>';
+					break;
+				case 'youtube':
+					var o_size = $.extend({width: 480, height: 385}, fp.p['size']);
+					
+					fp.p['src'] = fp.p['src'].replace(/watch\?v=/i, 'v/');
+					content = '<div id="flowerpotjs-media"><object id="flowerpotjs-media-youtube" name="flowerpotjs-media-youtube" width="' + o_size.width + '" height="' + o_size.height + '"><param name="movie" value="' + fp.p['src'] + '"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="' + fp.p['src'] + '" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="' + o_size.width + '" height="' + o_size.height + '"></embed></object></div>';
+					break;
 			}
 			
 			// If this is a gallery with more than one item, add
@@ -659,8 +684,8 @@
 			// If there's a description available, add it to the HTML
 			if (description)
 				content += '<div id="flowerpotjs-description-bg"></div><div id="flowerpotjs-description">' + description + '</div>';
-			// Added the "close" image to the HTML
-			content += '<a href="#close" id="flowerpotjs-close"><img src="' + fp.s['images_dir'] + fp.s['close_img'] + '" alt="' + fp.l['close'] + '" /></a>';
+			// Added the "close" link to the HTML
+			content += '<span id="flowerpotjs-close-container"><a href="#close" id="flowerpotjs-close">' + fp.l['close'] + '</a></span>';
 			// If gallery controls are available, add them to the HTML
 			// (provided there's more than one item in the gallery)
 			if (fp_controls.length == 0 && fp.p['gal_size'] > 1)
@@ -692,25 +717,6 @@
 			// And we're off to the races!
 			// Load the remote content into the DOM, or swap the inline div with a placeholder
 			switch (fp.p['type']) {
-				case 'image':
-					if ($.browser.opera) { // Opera acts a little weird with .load(), so we have
-										   // a special case for it
-						fp.image();
-						fp.show();
-					} else {
-						$('#flowerpotjs-image').load(function callback(event) {
-							if (fp.p['type'] == 'image')
-								fp.image();
-							if ($.browser.msie && $.browser.version >= 7) {
-								fp.show();
-							} else {
-								$(fp.p['dom_img']).load(function() {
-									fp.show();
-								});
-							}
-						});
-					}
-					break;
 				case 'div':
 					fp.resize('#flowerpotjs-div-inline');
 					if (fp.p['ajax']) { // Set variables here, in case there
@@ -736,6 +742,33 @@
 					break;
 				case 'iframe':
 					fp.resize('#flowerpotjs-iframe-inline');
+					fp.show();
+					break;
+				case 'image':
+					if ($.browser.opera) { // Opera acts a little weird with .load(), so we have
+										   // a special case for it
+						fp.image();
+						fp.show();
+					} else {
+						$('#flowerpotjs-image').load(function callback(event) {
+							if (fp.p['type'] == 'image')
+								fp.image();
+							if ($.browser.msie && $.browser.version >= 7) {
+								fp.show();
+							} else {
+								$(fp.p['dom_img']).load(function() {
+									fp.show();
+								});
+							}
+						});
+					}
+					break;
+				case 'vimeo':
+					fp.resize('#flowerpotjs-media', o_size);
+					fp.show();
+					break;
+				case 'youtube':
+					fp.resize('#flowerpotjs-media', o_size);
 					fp.show();
 					break;
 			}
