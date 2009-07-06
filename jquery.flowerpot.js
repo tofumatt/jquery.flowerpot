@@ -573,7 +573,7 @@
 			if (fp.s['detect_type']) {
 				if (fp.p['src'].match(/\.[png|jpg|jpeg|gif|bmp]/i))
 					fp.p['type'] = 'image';
-				else if (fp.p['src'].substr(0, 1) == '#' || fp.p['src'].match(window.location.host))
+				else if (!fp.p['src'].match(/^.*:\/\/.*/i) || fp.p['src'].match(window.location.host))
 					fp.p['type'] = 'div';
 				else if (fp.p['src'].match(/vimeo\.com/i))
 					fp.p['type'] = 'vimeo';
