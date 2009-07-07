@@ -50,9 +50,7 @@
 			anim_speed: 500, // animation time in ms
 			anim_multiplier: 3, // set to 1 to disable the shiftKey animation slowdown
 			aux_opacity: 0.75, // opacity of the other backgrounds
-			blur_onclick: true, // blur the element that invokes a Flowerpot
 			detect_type: true, // Automatically detect types based on href
-			images_dir: 'images/', // path to your images folder -- can absolute or relative
 			overlay_opacity: 0.5 // opacity of the overlay background
 		};
 	};
@@ -140,8 +138,7 @@
 				fp.p['slow_anim'] = true;
 			if (event.button == 0 && fp.p['ready']) {
 				fp.hide();
-				if (fp.s['blur_onclick'])
-					$(this).trigger('blur');
+				$(this).trigger('blur');
 				event.preventDefault();
 			}
 			fp.p['slow_anim'] = false;
@@ -164,8 +161,7 @@
 					$(this).flowerpot();
 				}
 				
-				if (fp.s['blur_onclick'])
-					$(this).trigger('blur');
+				$(this).trigger('blur');
 				event.preventDefault();
 			}
 			fp.p['slow_anim'] = false;
