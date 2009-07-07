@@ -499,7 +499,7 @@
 	 */
 	fp.show = function() {
 		var fp_contents = $('#flowerpotjs-contents'),
-		fp_close_container = $('#flowerpotjs-close-container'),
+		fp_close = $('#flowerpotjs-close'),
 		fp_description = $('#flowerpotjs-description'),
 		overlay_span = $('#flowerpotjs-overlay span');
 		
@@ -513,7 +513,7 @@
 		overlay_span.fadeOut(fp.p['speed']);
 		fp_contents.fadeIn(fp.p['speed']);
 		$('#flowerpotjs-description,#flowerpotjs-description-bg').css({bottom: '-' + parseInt(fp_description.height() * 1.25) + 'px'});
-		fp_close_container.css({right: '-' + parseInt(fp_close_container.width() + 10) + 'px'});
+		fp_close.css({right: '-' + parseInt(fp_close.width() + 15) + 'px'});
 		// The description has a transparent background set with JavaScript;
 		// we position an empty div behind it and assign the description's
 		// height to the empty div (we also set how far away the description
@@ -685,7 +685,7 @@
 			if (description)
 				content += '<div id="flowerpotjs-description-bg"></div><div id="flowerpotjs-description">' + description + '</div>';
 			// Added the "close" link to the HTML
-			content += '<span id="flowerpotjs-close-container"><a href="#close" id="flowerpotjs-close">' + fp.l['close'] + '</a></span>';
+			content += '<a href="#close" id="flowerpotjs-close">' + fp.l['close'] + '</a>';
 			// If gallery controls are available, add them to the HTML
 			// (provided there's more than one item in the gallery)
 			if (fp_controls.length == 0 && fp.p['gal_size'] > 1)
@@ -705,7 +705,7 @@
 			
 			// Apply some non-standard CSS (opacity and border-radius) to browsers that support it
 			$('#flowerpotjs-description-bg,.flowerpotjs-gallery-link-bg').css({opacity: fp.s['aux_opacity']});
-			$('#flowerpotjs-description,#flowerpotjs-description-bg').css({
+			$('#flowerpotjs-close,#flowerpotjs-description,#flowerpotjs-description-bg').css({
 				'-moz-border-radius': '3px',
 				'-webkit-border-radius': '2px'
 			});

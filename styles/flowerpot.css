@@ -53,31 +53,24 @@
 		z-index: 101;
 	}
 
-#flowerpotjs-close-container {
+#flowerpotjs-close {
 	background: black;
 	border: 1px solid white;
+	color: white;
 	display: block;
-	height: 18px;
+	font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	font-weight: bold;
+	height: 20px;
 	margin: 0;
 	outline: none !important;
-	padding: 0;
+	padding: 2px 4px 0;
 	position: absolute;
+	text-align: center;
+	text-decoration: none !important;
 	top: -1px;
 	z-index: 104;
 }
-	
-	#flowerpotjs-close {
-		color: white;
-		display: block;
-		font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Helvetica, Arial, sans-serif;
-		font-size: 14px;
-		font-weight: bold;
-		margin: 0;
-		padding: 2px 4px;
-		text-align: center;
-		text-decoration: none !important;
-		z-index: 104;
-	}
 
 #flowerpotjs-contents {
 	background: white;
