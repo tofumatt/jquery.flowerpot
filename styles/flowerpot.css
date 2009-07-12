@@ -126,6 +126,7 @@
 	}
 
 #flowerpotjs-controls-images {
+	display: none;
 	left: 0;
 	margin: 0 auto;
 	padding: 0;

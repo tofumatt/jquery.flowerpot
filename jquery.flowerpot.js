@@ -411,7 +411,10 @@
 		gallery_links.fadeOut(fp.p['speed']);
 		fp_contents.queue(function() {
 			fp_contents.dequeue();
-			$('#flowerpotjs-contents').empty(); // Empty the contents div, cleaning stuff up
+			// Empty some divs, cleaning stuff up
+			$('#flowerpotjs-contents').empty();
+			$('#flowerpotjs-controls').remove();
+			
 			overlay.fadeOut(fp.p['speed']);
 		});
 		overlay.queue(function() {
@@ -616,7 +619,7 @@
 		// If there are gallery thumbnails, apply some transparency to them,
 		// and set the active one
 		if (fp.p['gal_size'] > 1 && fp.s['gallery_thumbnails'])
-			$('#flowerpotjs-controls-images').css({opacity: fp.s['aux_opacity']}).children('li').eq(fp.p['gal_i']).addClass('flowerpotjs-thumbnail-active');
+			$('#flowerpotjs-controls-images').css({display: 'block', opacity: fp.s['aux_opacity']}).children('li').eq(fp.p['gal_i']).addClass('flowerpotjs-thumbnail-active');
 		
 		// If there's a description under The Flowerpot, account
 		// for the space it takes up so it doesn't run under the
