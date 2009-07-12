@@ -400,8 +400,8 @@
 			else
 				$(fp.p['src']).swap('#flowerpotjs-div-swap');
 		}
-		$('#flowerpotjs-contents').empty(); // Empty the contents div to prevent "invisible"
-											// playback and cleanup the DOM
+		$('#flowerpotjs-media').empty(); // Empty the media div to prevent "invisible" playback
+		
 		if ($.browser.msie && $.browser.version < 8)
 			html_objects.css('visibility', 'visible');
 		
@@ -411,7 +411,7 @@
 		gallery_links.fadeOut(fp.p['speed']);
 		fp_contents.queue(function() {
 			fp_contents.dequeue();
-			$('#flowerpotjs-controls').remove();
+			$('#flowerpotjs-contents').empty(); // Empty the contents div, cleaning stuff up
 			overlay.fadeOut(fp.p['speed']);
 		});
 		overlay.queue(function() {
