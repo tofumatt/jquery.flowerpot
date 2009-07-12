@@ -2,13 +2,15 @@
  * The Flowerpot
  *
  * A jQuery plugin to overlay images, inline content, and more.
+ * Dual-licensed under the MIT and GPL (v2 or later) licenses.
  *
- * @package     The Flowerpot
- * @author      Matthew Riley MacPherson
- * @copyright   Copyright (c) 2009, Matthew Riley MacPherson
- * @license     New BSD License (http://www.opensource.org/licenses/bsd-license.php)
- * @link        http://flowerpot.googlecode.com/
- * @since       Version 0.1
+ * @package		The Flowerpot
+ * @version		1.41
+ * @author		Matthew Riley MacPherson
+ * @copyright	Copyright (c) 2009, Matthew Riley MacPherson
+ * @license		MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license		GNU General Public License (GPL) version 2 or later (http://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
+ * @link		http://flowerpot.googlecode.com/
  */
 /* HTML plants in an overlayed pot! */
 
@@ -34,11 +36,23 @@
 
 #flowerpotjs-contents, #flowerpotjs-overlay span {
 	margin-left: expression(0 - parseInt(this.offsetWidth / 2) + (document.documentElement && document.documentElement.scrollLeft || document.body.scrollLeft) + 'px');
-	margin-top: expression(0 - parseInt(this.offsetHeight / 2) + (document.documentElement && document.documentElement.scrollTop || document.body.scrollTop) + 'px');
+	margin-top: expression(0 - parseInt(this.offsetHeight / 2) + (document.documentElement && document.documentElement.scrollTop || document.body.scrollTop) - ((document.getElementById('flowerpotjs-description')) ? (document.getElementById('flowerpotjs-description').offsetHeight * .25 + 3) : 0) + 'px');
 	position: absolute;
 }
 
 .flowerpotjs-gallery-link, .flowerpotjs-gallery-link-bg {
 	margin-top: expression(0 - parseInt(this.offsetHeight / 2) + (document.documentElement && document.documentElement.scrollTop || document.body.scrollTop) + 'px');
 	position: absolute;
+}
+
+#flowerpotjs-controls-images {
+	margin-top: expression(0 - parseInt(this.offsetHeight / 100) + (document.documentElement && document.documentElement.scrollTop || document.body.scrollTop) + 'px');
+	position: absolute;
+}
+
+#flowerpotjs-controls-images a {
+	margin: 2px 1px;
+}
+#flowerpotjs-controls-images li.flowerpotjs-thumbnail-active a {
+	margin: 1px 1px;
 }
