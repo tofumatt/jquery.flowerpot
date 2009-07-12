@@ -51,8 +51,9 @@
 			anim_multiplier: 3, // set to 1 to disable the shiftKey animation slowdown
 			aux_opacity: 0.75, // opacity of the other backgrounds
 			detect_type: true, // Automatically detect types based on href
-			gallery_thumbnails: true, // enable gallery thumnails on the top of the viewport
-			overlay_opacity: 0.5 // opacity of the overlay background
+			gallery_thumbnails: false, // enable gallery thumnails on the top of the viewport
+			overlay_opacity: 0.5, // opacity of the overlay background
+			thumbnail_height: 40 // height of the thumbnail links (in pixels)
 		};
 	};
 	
@@ -169,7 +170,7 @@
 		$.extend(fp.s, settings);
 		
 		// HTML to use when inserting The Flowerpot into the DOM
-		var flowerpot_html = '<div id="flowerpotjs-overlay" style="display: none;"><span style="display: none;">' + fp.l['loading'] + '</span></div><div id="flowerpotjs-contents" style="display: none;"></div>';
+		var flowerpot_html = '<div id="flowerpotjs-overlay" style="display:none;"><span style="display:none;">' + fp.l['loading'] + '</span></div><div id="flowerpotjs-contents" style="display:none;"></div>';
 		$('body').append(flowerpot_html);
 		
 		// Hide the overlay with opacity and style
@@ -355,6 +356,11 @@
 		if (fp.p['src'] && !fp.p['ajax'] && fp.p['type'] == 'div')
 			$(fp.p['src']).swap('#flowerpotjs-div-swap');
 		
+		// If gallery thumbnails are on, highlight the current thumbnail
+		if (fp.p['gal_size'] > 1 && fp.s['gallery_thumbnails']) {
+			$('#flowerpotjs-controls-images li').removeClass('flowerpotjs-thumbnail-active').eq(fp.p['gal_i']).addClass('flowerpotjs-thumbnail-active');
+		}
+		
 		// Select the gallery element and grow a Flowerpot
 		fp.p['gal_s'].eq(fp.p['gal_i']).flowerpot();
 	};
@@ -394,7 +400,8 @@
 			else
 				$(fp.p['src']).swap('#flowerpotjs-div-swap');
 		}
-		$('#flowerpotjs-media').empty(); // Empty the media div to prevent "invisible" playback
+		$('#flowerpotjs-contents').empty(); // Empty the contents div to prevent "invisible"
+											// playback and cleanup the DOM
 		if ($.browser.msie && $.browser.version < 8)
 			html_objects.css('visibility', 'visible');
 		
@@ -458,6 +465,7 @@
 	fp.resize = function(selector, size) {
 		var fp_contents = $('#flowerpotjs-contents'),
 		fp_description = $('#flowerpotjs-description'),
+		fp_gallery_thumbnails = $('#flowerpotjs-controls-images'),
 		height,
 		object = $(selector),
 		width,
@@ -543,6 +551,15 @@
 			$('#flowerpotjs-description-bg').css({height: fp_description.height()});
 			$('#flowerpotjs-description,#flowerpotjs-description-bg').css({bottom: '-' + parseInt(fp_description.height() + 3) + 'px'});
 		}
+		
+		// Make sure the gallery thumbnail links don't disappear by
+		// continuing outside the viewport
+		if (fp.s['gallery_thumbnails'] && fp.p['gal_size'] > 1) {
+			while (fp_gallery_thumbnails.width() > window_width) {
+				fp_gallery_thumbnails.height *= 2;
+				fp_gallery_thumbnails.height += 2;
+			}
+		}
 	};
 	
 	// --------------------------------------------------------------------
@@ -574,6 +591,11 @@
 	 * @return	void
 	 */
 	fp.show = function() {
+		// If for some reason this function gets called but the
+		// overlay isn't active, don't do anything
+		if (!fp.p['overlay'])
+			return;
+		
 		var fp_contents = $('#flowerpotjs-contents'),
 		fp_close = $('#flowerpotjs-close'),
 		fp_description = $('#flowerpotjs-description'),
@@ -590,6 +612,11 @@
 		fp_contents.fadeIn(fp.p['speed']);
 		$('#flowerpotjs-description,#flowerpotjs-description-bg').css({bottom: '-' + parseInt(fp_description.height() + 3) + 'px'});
 		fp_close.css({right: '-' + parseInt(fp_close.width() + 15) + 'px'});
+		
+		// If there are gallery thumbnails, apply some transparency to them,
+		// and set the active one
+		if (fp.p['gal_size'] > 1 && fp.s['gallery_thumbnails'])
+			$('#flowerpotjs-controls-images').css({opacity: fp.s['aux_opacity']}).children('li').eq(fp.p['gal_i']).addClass('flowerpotjs-thumbnail-active');
 		
 		// If there's a description under The Flowerpot, account
 		// for the space it takes up so it doesn't run under the
@@ -674,7 +701,7 @@
 			// Strings to store HTML
 			content = '',
 			controls = '',
-			// Misc. variables, mostly used in gallery 
+			// Misc. variables, mostly used in gallery
 			id,
 			o_size,
 			gallery_item,
@@ -722,7 +749,7 @@
 					} else {
 						fp.p['ajax'] = true;
 					}
-					content = '<div id="flowerpotjs-div-inline"><div id="flowerpotjs-div-swap" style="display: none;"></div></div>';
+					content = '<div id="flowerpotjs-div-inline"><div id="flowerpotjs-div-swap" style="display:none;"></div></div>';
 					break;
 				case 'iframe':
 					content = '<iframe id="flowerpotjs-iframe-inline" src="' + fp.p['src'] + '"></iframe>';
@@ -746,7 +773,7 @@
 			
 			// If this is a gallery with more than one item, add
 			// prev/next controls to it
-			if (fp.p['gal_size'] > 1) {
+			if (fp_controls.length == 0 && fp.p['gal_size'] > 1) {
 				controls = '<div id="flowerpotjs-controls"><span id="flowerpotjs-prev-link-bg" class="flowerpotjs-gallery-link-bg"></span><a href="#prev" id="flowerpotjs-prev-link" class="flowerpotjs-gallery-link" rel="' + fp.p['rel'] + '">' + fp.l['previous'] + '</a><span id="flowerpotjs-next-link-bg" class="flowerpotjs-gallery-link-bg"></span><a href="#next" id="flowerpotjs-next-link" class="flowerpotjs-gallery-link" rel="' + fp.p['rel'] + '">' + fp.l['next'] + '</a>';
 				if (fp.s['gallery_thumbnails']) {
 					controls += '<ul id="flowerpotjs-controls-images">';
@@ -755,12 +782,15 @@
 						rel = gallery_item.attr('rel');
 						src = (rel.match(/src\[([^ ]*)\]/i)) ? rel.replace(/.*src\[([^ ]*)\].*/i, '$1') : gallery_item.attr('href');
 						
-						switch (fp.detect_type(src, rel, gallery_item)) {
+						switch (fp.detect_type(src, rel)) {
 							case 'image':
-								gallery_item_link_text = '<img src="' + src + '" height="40" />';
+								gallery_item_link_text = '<img src="' + src + '" height="' + fp.s['thumbnail_height'] + '" />';
+								break;
+							case 'youtube':
+								gallery_item_link_text = '<img src="' + 'http://img.youtube.com/vi/' + src.replace(/.*v(=|\/)([^&#]*).*/i, '$2') + '/3.jpg' + '" height="' + fp.s['thumbnail_height'] + '" />';
 								break;
 							default:
-								gallery_item_link_text = '<span>' + parseInt(i + 1) + '</span>';
+								gallery_item_link_text = '<span style="height:' + Math.round(fp.s['thumbnail_height'] * .75) + 'px;padding-top:' + Math.round(fp.s['thumbnail_height'] * .25) + 'px;">' + parseInt(i + 1) + '</span>';
 								break;
 						}
 						

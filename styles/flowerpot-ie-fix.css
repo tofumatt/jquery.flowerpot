@@ -49,3 +49,10 @@
 	margin-top: expression(0 - parseInt(this.offsetHeight / 100) + (document.documentElement && document.documentElement.scrollTop || document.body.scrollTop) + 'px');
 	position: absolute;
 }
+
+#flowerpotjs-controls-images a {
+	margin: 2px 1px;
+}
+#flowerpotjs-controls-images li.flowerpotjs-thumbnail-active a {
+	margin: 1px 1px;
+}
