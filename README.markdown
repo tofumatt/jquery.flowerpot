@@ -20,7 +20,7 @@ The Flowerpot is a jQuery plugin that allows you to overlay _images_, _DOM eleme
 # Requirements
 The Flowerpot relies on the [jQuery](http://jquery.com) (1.3+) library. You'll need to load the included CSS as well.
 
-# Usage 
+# Usage
 Assuming jQuery is already loaded, include The Flowerpot's CSS and !JavaScript files:
 
 	<style type="text/css" media="screen">@import url(flowerpot.css);</style>
@@ -38,6 +38,7 @@ Opens "photo.jpg" in an overlay. The image will be scaled down if it exceeds the
 ## DOM Elements
 	<a href="#video" class="flowerpot" rel="div">Watch Video</a>
 Displays the element with the ID "video" in the overlay.
+
 ## AJAX Content
 	<a href="ajax.html" class="flowerpot" rel="div">Load Content</a>
 Displays the text/HTML returned by "ajax.html" in the overlay.
