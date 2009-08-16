@@ -21,12 +21,9 @@ The Flowerpot is a jQuery plugin that allows you to overlay _images_, _DOM eleme
 The Flowerpot relies on the [jQuery](http://jquery.com) (1.3+) library. You'll need to load the included CSS as well.
 
 # Usage
-Assuming jQuery is already loaded, include The Flowerpot's CSS and !JavaScript files:
+Assuming jQuery is already loaded, include The Flowerpot's CSS and JavaScript files:
 
 	<style type="text/css" media="screen">@import url(flowerpot.css);</style>
-	<!--[if lte IE 6]><style type="text/css" media="screen">
-		@import url(flowerpot-ie-fix.css);
-	</style><![endif]-->
 	<script type="text/javascript" src="jquery.flowerpot.js"></script>
 
 Any element on the page with the class "flowerpot" will launch an overlay. To get a linked image to appear in an overlay, it's as easy as `<a href="photo.jpg" class="flowerpot">Image</a>`. And with automatic type detection, you can link to images, inline divs, YouTube/Vimeo videos, pages on your domain (for AJAX), or external sites (for iFrames).

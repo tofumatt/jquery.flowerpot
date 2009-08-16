@@ -4,13 +4,13 @@
  * A jQuery plugin to overlay images, inline content, and more.
  * Dual-licensed under the MIT and GPL (v2 or later) licenses.
  *
- * @package		The Flowerpot
- * @version		HEAD
- * @author		Matthew Riley MacPherson
- * @copyright	Copyright (c) 2009, Matthew Riley MacPherson
- * @license		MIT License (http://www.opensource.org/licenses/mit-license.php)
- * @license		GNU General Public License (GPL) version 2 or later (http://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
- * @link		http://flowerpot.googlecode.com/
+ * @package     The Flowerpot
+ * @version     HEAD
+ * @author      Matthew Riley MacPherson
+ * @copyright   Copyright (c) 2009, Matthew Riley MacPherson
+ * @license     MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license     GNU General Public License (GPL) version 2 or later (http://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
+ * @link        http://github.com/tofumatt/jquery.flowerpot/
  */
 /* HTML plants in an overlayed pot! */
 
@@ -182,4 +182,43 @@
 
 #flowerpotjs-media {
 	background: black;
+}
+
+/**
+ * IE 6 CSS Fixes
+ *
+ * Fixes CSS problems with IE 6 + The Flowerpot.
+ *
+ */
+
+* html #flowerpotjs-overlay {
+	position: absolute;
+}
+
+* html #flowerpotjs-close {
+	display: inline-block;
+	margin-bottom: -32px;
+}
+
+* html #flowerpotjs-contents, * html #flowerpotjs-overlay span {
+	margin-left: expression(0 - parseInt(this.offsetWidth / 2) + (document.documentElement && document.documentElement.scrollLeft || document.body.scrollLeft) + 'px');
+	margin-top: expression(0 - parseInt(this.offsetHeight / 2) + (document.documentElement && document.documentElement.scrollTop || document.body.scrollTop) - ((document.getElementById('flowerpotjs-description')) ? (document.getElementById('flowerpotjs-description').offsetHeight * .25 + 3) : 0) + 'px');
+	position: absolute;
+}
+
+* html .flowerpotjs-gallery-link, * html .flowerpotjs-gallery-link-bg {
+	margin-top: expression(0 - parseInt(this.offsetHeight / 2) + (document.documentElement && document.documentElement.scrollTop || document.body.scrollTop) + 'px');
+	position: absolute;
+}
+
+* html #flowerpotjs-controls-images {
+	margin-top: expression(0 - parseInt(this.offsetHeight / 100) + (document.documentElement && document.documentElement.scrollTop || document.body.scrollTop) + 'px');
+	position: absolute;
+}
+
+* html #flowerpotjs-controls-images a {
+	margin: 2px 1px;
+}
+* html #flowerpotjs-controls-images li.flowerpotjs-thumbnail-active a {
+	margin: 1px 1px;
 }
