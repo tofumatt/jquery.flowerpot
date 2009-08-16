@@ -4,13 +4,13 @@
  * A jQuery plugin to overlay images, inline content, and more.
  * Dual-licensed under the MIT and GPL (v2 or later) licenses.
  *
- * @package		The Flowerpot
- * @version		HEAD
- * @author		Matthew Riley MacPherson
- * @copyright	Copyright (c) 2009, Matthew Riley MacPherson
- * @license		MIT License (http://www.opensource.org/licenses/mit-license.php)
- * @license		GNU General Public License (GPL) version 2 or later (http://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
- * @link		http://flowerpot.googlecode.com/
+ * @package     The Flowerpot
+ * @version     HEAD
+ * @author      Matthew Riley MacPherson
+ * @copyright   Copyright (c) 2009, Matthew Riley MacPherson
+ * @license     MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license     GNU General Public License (GPL) version 2 or later (http://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
+ * @link        http://github.com/tofumatt/jquery.flowerpot/
  */
 // HTML plants in an overlayed pot!
 
@@ -70,7 +70,6 @@
 	 * on information in the rel attribute (and optionally
 	 * through automatic type detection).
 	 *
-	 * @access	public
 	 * @param	string		rel		rel attribute of the link
 	 * @param	string		src		src attribute of the link
 	 * @return	string
@@ -116,7 +115,6 @@
 	 * When the viewport size changes, the overlay size needs to be
 	 * recalculated in JavaScript for IE 6
 	 *
-	 * @access	public
 	 * @return	void
 	 */
 	fp.ie6_resize_overlay = function() {
@@ -133,7 +131,6 @@
 	 * Load an image for The Flowerpot into the DOM and setup an event
 	 * listener to calculate the size after it loads.
 	 *
-	 * @access	public
 	 * @param	string		selector		jQuery selector of element to resize
 	 * @return	void
 	 */
@@ -159,7 +156,6 @@
 	 * method can be run again, or run "on-demand" to minimize
 	 * the amount of event listeners set.
 	 *
-	 * @access	public
 	 * @param	array		settings		array of settings to override defaults
 	 * @param	array		locale			array of locale html/text to override defaults
 	 * @return	void
@@ -322,7 +318,6 @@
 	 * Load a photo from the current gallery based on the index
 	 * number supplied.
 	 *
-	 * @access	public
 	 * @param	integer		index		photo index in the gallery array
 	 * @return	void
 	 */
@@ -373,7 +368,6 @@
 	 * Fade various elements out and restore any changes made to the DOM
 	 * or CSS by loading The Flowerpot
 	 *
-	 * @access	public
 	 * @return	void
 	 */
 	fp.hide = function() {
@@ -442,7 +436,6 @@
 	 * Override default locale array with user-supplied html/text after
 	 * The Flowerpot has been initialized.
 	 *
-	 * @access	public
 	 * @param	array		locale		array of locale html/text to override defaults
 	 * @return	void
 	 */
@@ -460,7 +453,6 @@
 	 * recalculated, in case the viewport size change allows for a larger
 	 * or smaller Flowerpot
 	 *
-	 * @access	public
 	 * @param	string		selector		jQuery selector of element to resize
 	 * @param	object		size			object containing width, height
 	 * @return	void
@@ -573,7 +565,6 @@
 	 * Override default settings with user settings after The Flowerpot has
 	 * been initialized.
 	 *
-	 * @access	public
 	 * @param	array		settings		array of settings to override defaults
 	 * @return	void
 	 */
@@ -590,7 +581,6 @@
 	 * Fade The Flowerpot in (after the image has loaded) and get rid of
 	 * the "loading" text.
 	 *
-	 * @access	public
 	 * @return	void
 	 */
 	fp.show = function() {
@@ -649,7 +639,6 @@
 	 * Create a Flowerpot based on the attributes of the parent object and
 	 * the options, if any, supplied.
 	 *
-	 * @access	public
 	 * @param	array		settings		array of settings to override defaults
 	 * @param	array		props			array of properties to override defaults
 	 * @return	jQuery
@@ -925,7 +914,6 @@
 	 * Swap an element's place in the DOM for another element. Inspired by
 	 * Brandon Aaron's jQuery swap plugin, except elements aren't cloned.
 	 *
-	 * @access	public
 	 * @param	string		element_b		jQuery selector of element to swap
 	 * @return	jQuery
 	 */
@@ -946,4 +934,4 @@
 		fp.init();
 	});
 })(jQuery); // Load in the jQuery global variable to maintain compability,
-			// i.e. in case another framework or variable is using "$"
+            // i.e. in case another framework or variable is using "$"
