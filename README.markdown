@@ -18,7 +18,7 @@ The Flowerpot is a jQuery plugin that allows you to overlay _images_, _DOM eleme
     IE 6+, Firefox 2+, Safari 3+, Opera 9+, and Chrome 1+
 
 # Requirements
-The Flowerpot relies on the [jQuery](http://jquery.com) (1.3+) library. You'll need to load the included CSS as well.
+The Flowerpot relies on the [jQuery](http://jquery.com) (1.3+) library (including jQuery 1.4). You'll need to load the included CSS as well.
 
 # Usage
 Assuming jQuery is already loaded, include The Flowerpot's CSS and JavaScript files:
