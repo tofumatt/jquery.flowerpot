@@ -1,0 +1,224 @@
+/**
+ * The Flowerpot
+ *
+ * A jQuery plugin to overlay images, inline content, and more.
+ * Dual-licensed under the MIT and GPL (v2 or later) licenses.
+ *
+ * @package     The Flowerpot
+ * @version     HEAD
+ * @author      Matthew Riley MacPherson
+ * @copyright   Copyright (c) 2009, Matthew Riley MacPherson
+ * @license     MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license     GNU General Public License (GPL) version 2 or later (http://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
+ * @link        http://github.com/tofumatt/jquery.flowerpot/
+ */
+/* HTML plants in an overlayed pot! */
+
+/**
+ * CSS for The Flowerpot
+ *
+ * These are the default styles for The Flowerpot, used
+ * in all browsers.
+ *
+ */
+
+#flowerpotjs-overlay {
+	background-color: black;
+	height: 100%;
+	left: 0;
+	position: fixed;
+	top: 0;
+	width: 100%;
+	z-index: 100;
+}
+	
+	#flowerpotjs-overlay span {
+		color: white;
+		display: block;
+		float: right;
+		font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Helvetica, Arial, sans-serif;
+		font-size: 20px;
+		height: 20px;
+		left: 50%;
+		margin: -20px 0 0 -125px;
+		padding: 5px 0;
+		position: fixed;
+		text-align: center;
+		text-shadow: 1px 1px 2px black;
+		top: 50%;
+		width: 250px;
+		z-index: 101;
+	}
+
+#flowerpotjs-close {
+	background: black;
+	border: 2px solid white;
+	color: white;
+	display: block;
+	font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	font-weight: bold;
+	height: 20px;
+	margin: 0;
+	outline: none !important;
+	padding: 2px 4px 0;
+	position: absolute;
+	text-align: center;
+	text-decoration: none !important;
+	top: -1px;
+	z-index: 104;
+}
+
+#flowerpotjs-contents {
+	background: white;
+	border: 1px solid black;
+	left: 50%;
+	position: fixed;
+	top: 50%;
+	z-index: 102;
+}
+
+#flowerpotjs-description, #flowerpotjs-description-bg {
+	color: white;
+	display: block;
+	font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	height: auto;
+	left: -10%;
+	margin: 101% auto 0;
+	padding: 0;
+	position: absolute;
+	text-align: center;
+	width: 120%;
+	z-index: 103;
+}
+	
+	#flowerpotjs-description-bg {
+		background: black;
+	}
+
+.flowerpotjs-gallery-link, .flowerpotjs-gallery-link-bg {
+	color: white;
+	font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	height: 16px;
+	overflow: none;
+	padding: 8px 4px;
+	position: fixed;
+	text-decoration: none;
+	top: 60%;
+	width: 84px;
+	z-index: 103;
+}
+	
+	.flowerpotjs-gallery-link-bg {
+		background: black;
+	}
+	
+	#flowerpotjs-prev-link, #flowerpotjs-prev-link-bg {
+		left: 8px;
+		text-align: left;
+	}
+	
+	#flowerpotjs-next-link, #flowerpotjs-next-link-bg {
+		right: 8px;
+		text-align: right;
+	}
+
+#flowerpotjs-controls-images {
+	display: none;
+	left: 0;
+	margin: 0 auto;
+	padding: 0;
+	position: fixed;
+	text-align: center;
+	top: 0;
+	width: auto;
+	z-index: 100;
+}
+	
+	#flowerpotjs-controls-images li {
+		display: inline;
+		margin: 0;
+		padding: 0;
+	}
+	
+	#flowerpotjs-controls-images a {
+		border: 1px solid white !important;
+		display: inline;
+		float: left;
+		margin: 1px 1px;
+		padding: 0;
+		text-decoration: none !important;
+	}
+	
+	#flowerpotjs-controls-images li.flowerpotjs-thumbnail-active a {
+		border: 2px solid white !important;
+		margin: 0 1px;
+	}
+	
+	#flowerpotjs-controls-images a img {
+		border: none !important;
+		display: block;
+		margin: 0;
+		padding: 0;
+	}
+	
+	#flowerpotjs-controls-images a span {
+		background: black;
+		border: none !important;
+		color: white !important;
+		display: block;
+		font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Helvetica, Arial, sans-serif;
+		font-size: 14px;
+		margin: 0;
+		padding: 0;
+		width: 50px;
+	}
+
+#flowerpotjs-iframe-inline {
+	border: none;
+}
+
+#flowerpotjs-media {
+	background: black;
+}
+
+/**
+ * IE 6 CSS Fixes
+ *
+ * Fixes CSS problems with IE 6 + The Flowerpot.
+ *
+ */
+
+* html #flowerpotjs-overlay {
+	position: absolute;
+}
+
+* html #flowerpotjs-close {
+	display: inline-block;
+	margin-bottom: -32px;
+}
+
+* html #flowerpotjs-contents, * html #flowerpotjs-overlay span {
+	margin-left: expression(0 - parseInt(this.offsetWidth / 2) + (document.documentElement && document.documentElement.scrollLeft || document.body.scrollLeft) + 'px');
+	margin-top: expression(0 - parseInt(this.offsetHeight / 2) + (document.documentElement && document.documentElement.scrollTop || document.body.scrollTop) - ((document.getElementById('flowerpotjs-description')) ? (document.getElementById('flowerpotjs-description').offsetHeight * .25 + 3) : 0) + 'px');
+	position: absolute;
+}
+
+* html .flowerpotjs-gallery-link, * html .flowerpotjs-gallery-link-bg {
+	margin-top: expression(0 - parseInt(this.offsetHeight / 2) + (document.documentElement && document.documentElement.scrollTop || document.body.scrollTop) + 'px');
+	position: absolute;
+}
+
+* html #flowerpotjs-controls-images {
+	margin-top: expression(0 - parseInt(this.offsetHeight / 100) + (document.documentElement && document.documentElement.scrollTop || document.body.scrollTop) + 'px');
+	position: absolute;
+}
+
+* html #flowerpotjs-controls-images a {
+	margin: 2px 1px;
+}
+* html #flowerpotjs-controls-images li.flowerpotjs-thumbnail-active a {
+	margin: 1px 1px;
+}

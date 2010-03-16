@@ -1,0 +1,48 @@
+/* Nice and simple */
+
+body {
+	background: #ddd;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+	font-size: .8em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	clear: both;
+	font-family: Times, "Times New Roman", sans-serif;
+	font-size: 2em;
+}
+
+h1, h2 {
+	font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Helvetica, Arial, sans-serif;
+	font-size: 2.5em;
+	text-align: center;
+}
+
+h1 {
+	font-size: 3em;
+	text-decoration: underline;
+}
+
+h3 {
+	border-bottom: 1px solid black;
+	padding: .5em 0 0;
+}
+
+ul.inline li {
+	display: inline;
+	float: left;
+	margin: 0 .5em;
+	padding: .25em;
+	text-align: center;
+}
+
+ul.inline li a img {
+	display: block;
+	border: 1px solid #aaa;
+	margin: 0 auto;
+	padding: 1px;
+}
+
+body.js .js-hide {
+	display: none;
+}

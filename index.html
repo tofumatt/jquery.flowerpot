@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+	    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>The Flowerpot</title>
+		
+		<!-- JavaScript -->
+		<script src="http://www.google.com/jsapi?key=ABQIAAAAN9kqWR8Iymy3XzomcLTzURQ0wGpOHwKfQZePH5rD_heJ1xMdMhS5cB1Xe1kXRocLiZtSXxwLOCx7oQ" type="text/javascript"></script>
+		<script type="text/javascript">
+			google.load('jquery', '1.4');
+		</script>
+		<script type="text/javascript" src="/jquery.flowerpot/jquery.flowerpot.js"></script>
+		<script type="text/javascript">
+			(function($) {
+				$(document).ready(function() {
+					$('body').addClass('js');
+				
+					$.the_flowerpot.settings({
+						gallery_thumbnails: true
+					});
+				});
+			})(jQuery);
+		</script>
+		
+		<!-- Stylesheets -->
+		<style type="text/css">@import url(/jquery.flowerpot/site.css);</style>
+		<style type="text/css">@import url(/jquery.flowerpot/jquery.flowerpot.css);</style>
+	</head>
+	<body style="margin: 0 auto; width: 800px;">
+		<h1>The Flowerpot</h1>
+		
+		<p>An image/HTML/AJAX/iFrame overlay loader, dual-licensed under MIT and GPL (v2 or later). Easy, modern, pretty, and all that jazz. Get it at <a href="http://github.com/tofumatt/jquery.flowerpot/">github.com/tofumatt/jquery.flowerpot/</a>. <a href="http://lonelyvegan.com">Matt</a> was responsible.</p>
+		
+		<h2>Examples</h2>
+			
+			<h3>Images</h3>
+			
+			<ul class="inline">
+				<li>
+					<a href="/jquery.flowerpot/examples/beach.jpg" class="flowerpot">
+						<img src="/jquery.flowerpot/examples/beach-thumb.jpg" alt="Beach" />
+					</a>
+				</li>
+				<li>
+					<a href="/jquery.flowerpot/examples/sad-bike.jpg" class="flowerpot" title="A cool-looking bike outside Uncommon Grounds, an awesome coffee shop in Halifax">
+						<img src="/jquery.flowerpot/examples/sad-bike-thumb.jpg" alt="'Sad bike' on street" />
+					</a>
+					<br />
+					Overlays can have captions.
+				</li>
+				<li>
+					<a href="/jquery.flowerpot/examples/blue-bug.jpg" class="flowerpot" title="A very cool mechnical bug that moved around when it encountered obstacles">
+						<img src="/jquery.flowerpot/examples/blue-bug-thumb.jpg" alt="Blue Mechnical Bug" />
+					</a>
+					<br />
+					A very large image (<a href="/jquery.flowerpot/examples/blue-bug.jpg">see file</a>)
+				</li>
+			</ul>
+			
+			<h3>Galleries</h3>
+			
+			<ul class="inline">
+				<li>
+					<a href="/jquery.flowerpot/examples/night-drive-1.jpg" class="flowerpot" rel="gallery[nightsky]" title="Photos from a drive in Nova Scotia">
+						<img src="/jquery.flowerpot/examples/night-drive-1-thumb.jpg" alt="Night sky" />
+					</a>
+				</li>
+				<li>
+					<a href="/jquery.flowerpot/examples/night-drive-2.jpg" class="flowerpot" rel="gallery[nightsky]">
+						<img src="/jquery.flowerpot/examples/night-drive-2-thumb.jpg" alt="Night sky" />
+					</a>
+				</li>
+				<li>
+					<a href="/jquery.flowerpot/examples/night-drive-3.jpg" class="flowerpot" rel="gallery[nightsky]">
+						<img src="/jquery.flowerpot/examples/night-drive-3-thumb.jpg" alt="Night sky" />
+					</a>
+				</li>
+				<li>
+					<a href="/jquery.flowerpot/examples/night-drive-4.jpg" class="flowerpot" rel="gallery[nightsky]" title="A blurry moon">
+						<img src="/jquery.flowerpot/examples/night-drive-4-thumb.jpg" alt="Night sky" />
+					</a>
+				</li>
+				<li>
+					<a href="/jquery.flowerpot/examples/night-drive-5.jpg" class="flowerpot" rel="gallery[nightsky]">
+						<img src="/jquery.flowerpot/examples/night-drive-5-thumb.jpg" alt="Night sky" />
+					</a>
+				</li>
+			</ul>
+			
+			<h3>Inline Content / AJAX</h3>
+			
+			<ul>
+				<li>
+					<a href="#hidden" class="flowerpot" rel="width[625] height[525]">
+						Display a hidden form
+					</a>
+				</li>
+				<li>
+					<a href="#hidden" class="flowerpot" rel="width[625] height[525]" title="Check it out: a caption, even on non-images!">
+						Display the same hidden form, but with a caption
+					</a>
+				</li>
+				<li>
+					<a href="/jquery.flowerpot/examples/ajax.html" class="flowerpot" rel="width[300] height[50]">
+						Load a file into the page with AJAX
+					</a>
+					<br />
+					(<a href="/jquery.flowerpot/examples/ajax.html">see file</a>)
+				</li>
+			</ul>
+			
+			<h3>iFrames</h3>
+			
+			<ul>
+				<li>
+					<a href="/jquery.flowerpot/examples/ajax.html" class="flowerpot" rel="iframe width[300] height[50]">
+						Load ajax.html in an iFrame
+					</a>
+				</li>
+				<li>
+					<a href="http://apple.ca/" class="flowerpot">
+						Load Apple Canada in an iFrame
+					</a>
+				</li>
+			</ul>
+			
+			<h3>Videos</h3>
+			
+			<ul>
+				<li>
+					<a href="http://youtube.com/watch?v=ILo1v6Y7IB4&amp;autoplay=true" class="flowerpot">
+						YouTube Video
+					</a>
+				</li>
+				<li>
+					<a href="http://vimeo.com/2540216" class="flowerpot">
+						Vimeo Video
+					</a>
+				</li>
+			</ul>
+			
+			<h3>Mixed Galleries</h3>
+			
+			<p>Galleries can be made of multiple types, not just images:</p>
+			
+			<ul>
+				<li>
+					<a href="/jquery.flowerpot/examples/night-drive-1.jpg" class="flowerpot" rel="gallery[mixed]" title="Photos from a drive in Nova Scotia">
+						<img src="/jquery.flowerpot/examples/night-drive-1-thumb.jpg" alt="Night sky" />
+					</a>
+				</li>
+				<li>
+					<a href="#hidden" class="flowerpot" rel="gallery[mixed] width[625] height[525]" title="Check it out: a caption, even on non-images!">
+						Display the same hidden form, but with a caption
+					</a>
+				</li>
+				<li>
+					<a href="/jquery.flowerpot/examples/night-drive-2.jpg" class="flowerpot" rel="gallery[mixed]">
+						<img src="/jquery.flowerpot/examples/night-drive-2-thumb.jpg" alt="Night sky" />
+					</a>
+				</li>
+				<li>
+					<a href="/jquery.flowerpot/examples/ajax.tml" class="flowerpot" rel="gallery[mixed] width[300] height[50]">
+						Load a file into the page with AJAX
+					</a>
+				</li>
+				<li>
+					<a href="http://apple.ca/" class="flowerpot" rel="gallery[mixed]">
+						Load Apple Canada in an iFrame
+					</a>
+				</li>
+				<li>
+					<a href="/jquery.flowerpot/examples/blue-bug.jpg" class="flowerpot" rel="gallery[mixed]" title="A very cool mechnical bug that moved around when it encountered obstacles">
+						<img src="/jquery.flowerpot/examples/blue-bug-thumb.jpg" alt="Blue Mechnical Bug" />
+					</a>
+				</li>
+				<li>
+					<a href="http://youtube.com/watch?v=ILo1v6Y7IB4&amp;autoplay=true" class="flowerpot" rel="gallery[mixed]">
+						YouTube Video
+					</a>
+				</li>
+				<li>
+					<a href="http://vimeo.com/2540216" class="flowerpot" rel="gallery[mixed]">
+						Vimeo Video
+					</a>
+				</li>
+			</ul>
+			
+			<h3>Custom Events</h3>
+			
+			<script type="text/javascript">
+				$(document).ready(function() {
+					$('#special-event').click(function() {
+						$(this).flowerpot({
+							anim_speed: 1250,
+							aux_opacity: 1,
+							overlay_opacity: 0
+						});
+					});
+				});
+			</script>
+			
+			<p id="special-event" title="Notice the custom speed and opacity? An example of a custom flowerpot event" rel="src[/jquery.flowerpot/examples/night-drive-1.jpg]">Click on this paragraph and load an overlay with custom settings.</p>
+			
+			<script type="text/javascript">
+				$(document).ready(function() {
+					$('#special-event-2').click(function(event) {
+						$(this).flowerpot({
+							anim_speed: 500,
+							aux_opacity: 1,
+							overlay_opacity: 1
+						});
+						event.preventDefault();
+					});
+				});
+			</script>
+			
+			<a href="/jquery.flowerpot/examples/beach.jpg" id="special-event-2">
+				Another custom event with an opaque overlay.
+			</a>
+		
+		<div id="hidden-content" class="js-hide">
+			<div id="hidden">
+				<p>Hello, I'm some hidden content (if you have JavaScript on).</p>
+				<ul>
+					<li>A list inside the content</li>
+					<li>But you can do just about anything</li>
+					<li>You could even load a YouTube video:</li>
+				</ul>
+				
+				<div style="margin: 0 auto; width: 480px;">
+					<object width="480" height="385">
+						<param name="movie" value="http://www.youtube-nocookie.com/v/_hnOCUkbix0&amp;hl=en&amp;fs=1&amp;rel=0&amp;color1=0x3a3a3a&amp;color2=0x999999"></param>
+						<param name="allowFullScreen" value="true"></param>
+						<param name="allowscriptaccess" value="always"></param>
+						<embed src="http://www.youtube-nocookie.com/v/_hnOCUkbix0&amp;hl=en&amp;fs=1&amp;rel=0&amp;color1=0x3a3a3a&amp;color2=0x999999" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="480" height="385"></embed>
+					</object>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
