@@ -19,17 +19,17 @@
 	// to override settings with $.extend()
 	$.the_flowerpot = new function() {
 		this.l = { // Locale html/text strings (These are
-				   // Unicode -- you'll wanna override 'next'
-				   // and 'previous' if your output isn't)
+		           // Unicode -- you'll wanna override 'next'
+		           // and 'previous' if your output isn't)
 			ajax_error: 'An error occurred during the request.', // HTML to display when we
-																 // have a catchable AJAX error
+			                                                     // have a catchable AJAX error
 			close: 'Close', // html for close link
 			loading: 'Loading... "Esc" to close', // html that appears when the image is loading
 			next: 'Next →', // html inside the gallery "next" link
 			previous: '← Previous' // html inside the gallery "previous" link
 		};
 		this.p = { // Internal data members -- you can modify them dynamically
-				   // when you invoke a Flowerpot
+		           // when you invoke a Flowerpot
 			ajax: false,
 			desc: false,
 			dom_img: 0,
@@ -189,8 +189,8 @@
 			fp.p['slow_anim'] = false;
 		});
 		$('.flowerpot').live('click', function(event) { // Event listener for all current
-														// and future elements with the class "flowerpot"
-			if (fp.p['overlay']) // Don't try to grow another Flowerpot if there's already an overlay
+		                                                // and future elements with the class "flowerpot"
+			if (fp.p['overlay']) // Don't try to load an overlay if one already exists
 				return;
 			if (event.shiftKey)
 				fp.p['slow_anim'] = true;
@@ -254,7 +254,7 @@
 			var prevent_default = false;
 			if (event.shiftKey)
 				fp.p['slow_anim'] = true; // Little OS X-like Easter Egg -- slows down
-										  // animations when holding the Shift key ^_^
+				                          // animations when holding the Shift key ^_^
 			switch (event.keyCode) {
 				case 27: // Esc (close The Flowerpot)
 					if (fp.p['ready'] || fp.p['overlay']) {
@@ -294,7 +294,7 @@
 		
 		// Resize Events
 		$(window).resize(function(event) { // If the viewport size changes,
-										   // recalculate the image size
+		                                   // recalculate the image size
 			if (fp.p['ready']) {
 				if (fp.p['type'] == 'image')
 					fp.resize('#flowerpotjs-image');
@@ -303,7 +303,7 @@
 				else if (fp.p['type'] == 'iframe')
 					fp.resize('#flowerpotjs-iframe-inline');
 				if ($.browser.msie && $.browser.version < 7) // The overlay for IE 6 is sized in JavaScript,
-															 // so it needs to be recalculated
+				                                             // so it needs to be recalculated
 					fp.ie6_resize_overlay();
 				event.preventDefault();
 			}
@@ -323,10 +323,10 @@
 	 */
 	fp.gallery_move = function(index) {
 		if (index === fp.p['gal_i']) // Don't do anything if we're already
-									 // at the requested index
+		                             // at the requested index
 			return false;
 		$('#flowerpotjs-contents').hide(); // We're gonna mess with the contents
-										   // of The Flowerpot, so hide it
+		                                   // of The Flowerpot, so hide it
 		// Set to false so event listeners don't invoke anything
 		fp.p['ready'] = false;
 		
@@ -796,7 +796,7 @@
 			// If there's a description available, add it to the HTML
 			if (fp.p['desc'])
 				content += '<div id="flowerpotjs-description-bg"></div><div id="flowerpotjs-description">' + fp.p['desc'] + '</div>';
-			// Added the "close" link to the HTML
+			// Add the "close" link to the HTML
 			content += '<a href="#close" id="flowerpotjs-close">' + fp.l['close'] + '</a>';
 			// If gallery controls are available, add them to the HTML
 			// (provided there's more than one item in the gallery)
@@ -858,7 +858,7 @@
 					break;
 				case 'image':
 					if ($.browser.opera) { // Opera acts a little weird with .load(), so we have
-										   // a special case for it
+					                       // a special case for it
 						fp.image();
 						fp.show();
 					} else {
