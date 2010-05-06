@@ -705,17 +705,25 @@
 			// Set the current animation speed (and multiply it if slowdown is on)
 			fp.p['speed'] = (fp.p['slow_anim']) ? fp.s['anim_speed'] * fp.s['anim_multiplier'] : fp.s['anim_speed'];
 			
-			// Load a description. The Flowerpot looks for a description from three places:
-			//
-			// 		1. 'desc' from the 'properties' array
-			//
-			// 		2. an element with the same id as the element that invoked
-			// 			The Flowerpot, with the suffix "-flowerpot-description"
-			//
-			// 		3. the "title" attribute of the element that invoked The Flowerpot
+			// Load a description. The Flowerpot looks for a description from four places:
+			// 
+			// 1. 'desc' from the 'properties' array
+			// 
+			// 2. an element with the same id as the element that invoked
+			// The Flowerpot, with the suffix "-flowerpot-description"
+			// 
+			// 3. the "title" attribute of the element that invoked The Flowerpot
+			// 
+			// 4. an element with the same id as the element invoked *by*
+			// The Flowerpot, with the suffix "-flowerpot-description"
 			if (!fp.p['desc']) {
 				fp.p['desc'] = $('#' + $(this).attr('id') + '-flowerpot-description');
 				fp.p['desc'] = (fp.p['desc'].length > 0) ? fp.p['desc'].html() : $(this).attr('title');
+				
+				// Last resort: div with the same id as the element invoked
+				// by The Flowerpot (plus the description suffix)
+				if (fp.p['desc'].length > 0 && fp.p['type'] == 'div')
+					fp.p['desc'] = $(fp.p['src'] + '-flowerpot-description');
 			}
 			
 			// Load the overlay, which gives a visual queue that clicking a Flowerpot
@@ -832,18 +840,18 @@
 				case 'div':
 					fp.resize('#flowerpotjs-div-inline');
 					if (fp.p['ajax']) { // Set variables here, in case there
-										// are global ajax settings
+					                    // are global ajax settings
 						$.ajax({
 							type: 'GET',
 							async: false,
 							url: fp.p['src'],
 							dataType: 'text',
-							success: function(result) { // We expect HTML (plaintext) from
-														// a GET request...
+							// We expect HTML (plaintext) from a GET request...
+							success: function(result) {
 								$('#flowerpotjs-div-inline').html(result);
 							},
-							error: function(request, status, error) { // ... so if we don't get
-																	  // what we expected, complain
+							// ... so if we don't get what we expected, complain
+							error: function(request, status, error) {
 								$('#flowerpotjs-div-inline').html(fp.l['ajax_error']);
 							}
 						});
