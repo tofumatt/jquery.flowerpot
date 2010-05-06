@@ -4,13 +4,9 @@
  * A jQuery plugin to overlay images, inline content, and more.
  * Dual-licensed under the MIT and GPL (v2 or later) licenses.
  *
- * @package     The Flowerpot
- * @version     HEAD
- * @author      Matthew Riley MacPherson
- * @copyright   Copyright (c) 2009, Matthew Riley MacPherson
- * @license     MIT License (http://www.opensource.org/licenses/mit-license.php)
- * @license     GNU General Public License (GPL) version 2 or later (http://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
- * @link        http://github.com/tofumatt/jquery.flowerpot/
+ * Copyright (c) 2010, Matthew Riley MacPherson
+ * Dual-licensed under the MIT and GPL (v2 or later) licenses.
+ * http://github.com/tofumatt/jquery.flowerpot/
  */
 // HTML plants in an overlayed pot!
 
@@ -18,18 +14,17 @@
 	// The Flowerpot object. Data is stored in arrays to allow jQuery
 	// to override settings with $.extend()
 	$.the_flowerpot = new function() {
-		this.l = { // Locale html/text strings (These are
-		           // Unicode -- you'll wanna override 'next'
-		           // and 'previous' if your output isn't)
+		// Locale html/text strings
+		this.l = {
 			ajax_error: 'An error occurred during the request.', // HTML to display when we
 			                                                     // have a catchable AJAX error
-			close: 'Close', // html for close link
-			loading: 'Loading... "Esc" to close', // html that appears when the image is loading
-			next: 'Next →', // html inside the gallery "next" link
-			previous: '← Previous' // html inside the gallery "previous" link
+			close: 'Close', // HTML for close link
+			loading: 'Loading... "Esc" to close', // HTML that appears when the image is loading
+			next: 'Next →', // HTML inside the gallery "next" link
+			previous: '← Previous' // HTML inside the gallery "previous" link
 		};
-		this.p = { // Internal data members -- you can modify them dynamically
-		           // when you invoke a Flowerpot
+		// Internal data members -- you can modify them dynamically when you invoke a Flowerpot
+		this.p = {
 			ajax: false,
 			desc: false,
 			dom_img: 0,
@@ -46,7 +41,8 @@
 			src: false,
 			type: 'image'
 		};
-		this.s = { // User-customizable settings
+		// User-customizable settings
+		this.s = {
 			anim_speed: 500, // animation time in ms
 			anim_multiplier: 3, // set to 1 to disable the shiftKey animation slowdown
 			aux_opacity: 0.75, // opacity of the other backgrounds
@@ -61,19 +57,13 @@
 	// to save space (and typing)
 	var fp = $.the_flowerpot;
 	
-	// --------------------------------------------------------------------
-	
-	/**
-	 * Detect the type of overlay to load
-	 *
-	 * Returns the type overlay that should be loaded based
-	 * on information in the rel attribute (and optionally
-	 * through automatic type detection).
-	 *
-	 * @param	string		rel		rel attribute of the link
-	 * @param	string		src		src attribute of the link
-	 * @return	string
-	 */
+	// Detect the type of overlay to load
+	// Returns the type overlay that should be loaded based
+	// on information in the rel attribute (and optionally
+	// through automatic type detection). Returns a string
+	// 
+	// rel | rel attribute of the link (String)
+	// src | src attribute of the link (String)
 	fp.detect_type = function(src, rel) {
 		// By default, the type is an image
 		var type = 'image';
@@ -107,33 +97,19 @@
 		return type;
 	}
 	
-	// --------------------------------------------------------------------
-	
-	/**
-	 * Resize the overlay in IE 6
-	 *
-	 * When the viewport size changes, the overlay size needs to be
-	 * recalculated in JavaScript for IE 6
-	 *
-	 * @return	void
-	 */
+	// Resize the overlay in IE 6
+	// When the viewport size changes, the overlay size needs to be
+	// recalculated in JavaScript for IE 6
 	fp.ie6_resize_overlay = function() {
 		var overlay = $('#flowerpotjs-overlay');
 		overlay.css('height', $().height());
 		overlay.css('width', $(window).width());
 	};
 	
-	// --------------------------------------------------------------------
-	
-	/**
-	 * Load an image
-	 *
-	 * Load an image for The Flowerpot into the DOM and setup an event
-	 * listener to calculate the size after it loads.
-	 *
-	 * @param	string		selector		jQuery selector of element to resize
-	 * @return	void
-	 */
+	// Load an image for The Flowerpot into the DOM and setup an event
+	// listener to calculate the size after it loads.
+	// 
+	// selector | jQuery selector of element to resize (String)
 	fp.image = function(selector) {
 		fp.p['dom_img'] = new Image();
 		// Create an event listener to resize the image when the
@@ -146,20 +122,11 @@
 		fp.p['dom_img'].src = $('#flowerpotjs-image').attr('src');
 	};
 	
-	// --------------------------------------------------------------------
-	
-	/**
-	 * Initialize The Flowerpot
-	 *
-	 * Setup event listeners, CSS, and HTML. By default, The
-	 * Flowerpot is loaded when the DOM is ready, but this
-	 * method can be run again, or run "on-demand" to minimize
-	 * the amount of event listeners set.
-	 *
-	 * @param	array		settings		array of settings to override defaults
-	 * @param	array		locale			array of locale html/text to override defaults
-	 * @return	void
-	 */
+	// Initialize The Flowerpot
+	// Setup event listeners, CSS, and HTML. By default, The
+	// Flowerpot is loaded when the DOM is ready, but this
+	// method can be run again, or run "on-demand" to minimize
+	// the amount of event listeners set.
 	fp.init = function(settings, locale) {
 		// Load custom settings passed via array arguments
 		$.extend(fp.l, locale);
@@ -310,17 +277,9 @@
 		});
 	};
 	
-	// --------------------------------------------------------------------
-	
-	/**
-	 * Move the gallery index
-	 *
-	 * Load a photo from the current gallery based on the index
-	 * number supplied.
-	 *
-	 * @param	integer		index		photo index in the gallery array
-	 * @return	void
-	 */
+	// Move the gallery index
+	// Load a photo from the current gallery based on the index
+	// number supplied.
 	fp.gallery_move = function(index) {
 		if (index === fp.p['gal_i']) // Don't do anything if we're already
 		                             // at the requested index
@@ -360,16 +319,9 @@
 		fp.p['gal_s'].eq(fp.p['gal_i']).flowerpot();
 	};
 	
-	// --------------------------------------------------------------------
-	
-	/**
-	 * Hide The Flowerpot
-	 *
-	 * Fade various elements out and restore any changes made to the DOM
-	 * or CSS by loading The Flowerpot
-	 *
-	 * @return	void
-	 */
+	// Fade various elements out and restore any changes made to the DOM
+	// or CSS by loading The Flowerpot. In effect, closes The Flowerpot,
+	// though some of its container divs remain.
 	fp.hide = function() {
 		// We're hiding The Flowerpot, so it's not ready for anything!
 		fp.p['ready'] = false;
@@ -428,35 +380,19 @@
 		});
 	};
 	
-	// --------------------------------------------------------------------
-	
-	/**
-	 * Define custom locale strings
-	 *
-	 * Override default locale array with user-supplied html/text after
-	 * The Flowerpot has been initialized.
-	 *
-	 * @param	array		locale		array of locale html/text to override defaults
-	 * @return	void
-	 */
+	// Override default locale array with user-supplied html/text after
+	// The Flowerpot has been initialized.
 	fp.locale = function(locale) {
-		// Load custom settings passed via arguments
 		$.extend(fp.l, locale);
 	};
 	
-	// --------------------------------------------------------------------
-	
-	/**
-	 * Resize The Flowerpot
-	 *
-	 * When the viewport size changes, the size of The Flowerpot is
-	 * recalculated, in case the viewport size change allows for a larger
-	 * or smaller Flowerpot
-	 *
-	 * @param	string		selector		jQuery selector of element to resize
-	 * @param	object		size			object containing width, height
-	 * @return	void
-	 */
+	// Resize The Flowerpot
+	// When the viewport size changes, the size of The Flowerpot is
+	// recalculated, in case the viewport size change allows for a larger
+	// or smaller Flowerpot
+	// 
+	// selector | jQuery selector of element to resize (String)
+	// size | object containing width, height (Object)
 	fp.resize = function(selector, size) {
 		var fp_contents = $('#flowerpotjs-contents'),
 		fp_description = $('#flowerpotjs-description'),
@@ -557,32 +493,16 @@
 		}
 	};
 	
-	// --------------------------------------------------------------------
-	
-	/**
-	 * Define custom settings
-	 *
-	 * Override default settings with user settings after The Flowerpot has
-	 * been initialized.
-	 *
-	 * @param	array		settings		array of settings to override defaults
-	 * @return	void
-	 */
+	// Override default settings with user settings after The Flowerpot has
+	// been initialized.
 	fp.settings = function(settings) {
 		// Load custom settings passed via arguments
 		$.extend(fp.s, settings);
 	};
 	
-	// --------------------------------------------------------------------
-	
-	/**
-	 * Show The Flowerpot
-	 *
-	 * Fade The Flowerpot in (after the image has loaded) and get rid of
-	 * the "loading" text.
-	 *
-	 * @return	void
-	 */
+	// Show The Flowerpot
+	// Fade The Flowerpot in (after the element has loaded) and get rid of
+	// the "loading" text.
 	fp.show = function() {
 		// If for some reason this function gets called but the
 		// overlay isn't active, don't do anything
@@ -631,18 +551,9 @@
 		fp.p['ready'] = true;
 	};
 	
-	// --------------------------------------------------------------------
-	
-	/**
-	 * Plant a flowerpot
-	 *
-	 * Create a Flowerpot based on the attributes of the parent object and
-	 * the options, if any, supplied.
-	 *
-	 * @param	array		settings		array of settings to override defaults
-	 * @param	array		props			array of properties to override defaults
-	 * @return	jQuery
-	 */
+	// Plant a flowerpot!
+	// Create a Flowerpot based on the attributes of the parent object and
+	// the options, if any, supplied. Returns self (making it jQuery chainable).
 	$.fn.flowerpot = function(settings, props) {
 		// Reload special defaults
 		$.extend(true, fp.p, {
@@ -914,17 +825,11 @@
 		return this;
 	};
 	
-	// --------------------------------------------------------------------
-	
-	/**
-	 * Swap elements
-	 *
-	 * Swap an element's place in the DOM for another element. Inspired by
-	 * Brandon Aaron's jQuery swap plugin, except elements aren't cloned.
-	 *
-	 * @param	string		element_b		jQuery selector of element to swap
-	 * @return	jQuery
-	 */
+	// Swap an element's place in the DOM for another element. Inspired by
+	// Brandon Aaron's jQuery swap plugin, except elements aren't cloned.
+	// Returns self as to be chainable.
+	// 
+	// element_b | jQuery selector of element to swap (String)
 	$.fn.swap = function(element_b) {
 		element_b = $(element_b)[0];
 		var element_a = this[0],
