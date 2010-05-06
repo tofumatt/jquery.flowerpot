@@ -97,6 +97,10 @@
 		background: black;
 	}
 
+.flowerpot-description-inner {
+	padding: 2px;
+}
+
 .flowerpotjs-gallery-link, .flowerpotjs-gallery-link-bg {
 	color: white;
 	font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Helvetica, Arial, sans-serif;
