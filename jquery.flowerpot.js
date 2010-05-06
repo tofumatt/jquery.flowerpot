@@ -629,12 +629,12 @@
 			// The Flowerpot, with the suffix "-flowerpot-description"
 			if (!fp.p['desc']) {
 				fp.p['desc'] = $('#' + $(this).attr('id') + '-flowerpot-description');
-				fp.p['desc'] = (fp.p['desc'].length > 0) ? fp.p['desc'].html() : $(this).attr('title');
+				fp.p['desc'] = (fp.p['desc'].length > 0) ? fp.p['desc'].text() : $(this).attr('title');
 				
 				// Last resort: div with the same id as the element invoked
 				// by The Flowerpot (plus the description suffix)
-				if (fp.p['desc'].length > 0 && fp.p['type'] == 'div')
-					fp.p['desc'] = $(fp.p['src'] + '-flowerpot-description');
+				if (fp.p['desc'].length == 0 && fp.p['type'] == 'div')
+					fp.p['desc'] = $(fp.p['src'] + '-flowerpot-description').text();
 			}
 			
 			// Load the overlay, which gives a visual queue that clicking a Flowerpot
@@ -714,7 +714,7 @@
 			
 			// If there's a description available, add it to the HTML
 			if (fp.p['desc'])
-				content += '<div id="flowerpotjs-description-bg"></div><div id="flowerpotjs-description">' + fp.p['desc'] + '</div>';
+				content += '<div id="flowerpotjs-description-bg"><div class="flowerpot-description-inner"></div></div><div id="flowerpotjs-description"><div class="flowerpot-description-inner">' + fp.p['desc'] + '</div></div>';
 			// Add the "close" link to the HTML
 			content += '<a href="#close" id="flowerpotjs-close">' + fp.l['close'] + '</a>';
 			// If gallery controls are available, add them to the HTML
