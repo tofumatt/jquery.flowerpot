@@ -57,6 +57,67 @@
 	// to save space (and typing)
 	var fp = $.the_flowerpot;
 	
+	// Fade various elements out and restore any changes made to the DOM
+	// or CSS by loading The Flowerpot. In effect, closes The Flowerpot,
+	// though some of its container divs remain.
+	fp.close = function() {
+		// We're hiding The Flowerpot, so it's not ready for anything!
+		fp.p['ready'] = false;
+		
+		// Get rid of the DOM image, if one is loaded
+		fp.p['dom_img'] = 0;
+		
+		// Selectors we'll access a few times
+		var fp_contents = $('#flowerpotjs-contents'),
+		gallery_links = $('.flowerpotjs-gallery-link,.flowerpotjs-gallery-link-bg,.flowerpotjs-gallery-index-link'),
+		html_objects = $('object,embed'),
+		overlay = $('#flowerpotjs-overlay');
+		
+		// Set the current animation speed (and multiply it if slowdown is on)
+		fp.p['speed'] = (fp.p['slow_anim']) ? fp.s['anim_speed'] * fp.s['anim_multiplier'] : fp.s['anim_speed'];
+		
+		// Set things back to the way they were
+		fp.p['gal_size'] = 0;
+		if (fp.p['type'] == 'div') {
+			if (fp.p['ajax'])
+				$('#flowerpotjs-div-inline').empty();
+			else
+				$(fp.p['src']).swap('#flowerpotjs-div-swap');
+		}
+		$('#flowerpotjs-media').empty(); // Empty the media div to prevent "invisible" playback
+		
+		if ($.browser.msie && $.browser.version < 8)
+			html_objects.css('visibility', 'visible');
+		
+		// Fade out elements successively
+		fp_contents.fadeOut(fp.p['speed']);
+		gallery_links.dequeue();
+		gallery_links.fadeOut(fp.p['speed']);
+		fp_contents.queue(function() {
+			fp_contents.dequeue();
+			// Empty some divs, cleaning stuff up
+			$('#flowerpotjs-contents').empty();
+			$('#flowerpotjs-controls').remove();
+			
+			overlay.fadeOut(fp.p['speed']);
+		});
+		overlay.queue(function() {
+			overlay.dequeue();
+			if (($.browser.msie && $.browser.version < 8) || $.browser.opera)
+				html_objects.css('visibility', 'visible');
+			$('body').removeClass('flowerpot-active');
+			
+			// Reload the initial settings
+			if (fp.p['old_set']) {
+				$.extend(fp.s, fp.p['old_set']);
+				fp.p['old_set'] = false;
+			}
+			
+			// We're done: there's no more Flowerpot, and no overlay
+			fp.p['overlay'] = false;
+		});
+	};
+	
 	// Detect the type of overlay to load
 	// Returns the type overlay that should be loaded based
 	// on information in the rel attribute (and optionally
@@ -149,7 +210,7 @@
 			if (event.shiftKey)
 				fp.p['slow_anim'] = true;
 			if (event.button == 0 && fp.p['ready']) {
-				fp.hide();
+				fp.close();
 				$(this).trigger('blur');
 				event.preventDefault();
 			}
@@ -225,29 +286,29 @@
 			switch (event.keyCode) {
 				case 27: // Esc (close The Flowerpot)
 					if (fp.p['ready'] || fp.p['overlay']) {
-						fp.hide();
+						fp.close();
 						prevent_default = true;
 					}
 					break;
-				case 35: // End (loads last gallery image)
+				case 35: // End (last gallery item)
 					if (fp.p['ready'] && fp.p['gal_size'] > 0) {
 						fp.gallery_move(fp.p['gal_size'] - 1);
 						prevent_default = true;
 					}
 					break;
-				case 36: // Home (loads first gallery image)
+				case 36: // Home (first gallery item)
 					if (fp.p['ready'] && fp.p['gal_size'] > 0) {
 						fp.gallery_move(0);
 						prevent_default = true;
 					}
 					break;
-				case 37: // Left Arrow (loads previous gallery image)
+				case 37: // Left Arrow (previous gallery item)
 					if (fp.p['ready'] && fp.p['gal_size'] > 0) {
 						fp.gallery_move('prev');
 						prevent_default = true;
 					}
 					break;
-				case 39: // Right Arrow (loads next gallery image)
+				case 39: // Right Arrow (next gallery item)
 					if (fp.p['ready'] && fp.p['gal_size'] > 0) {
 						fp.gallery_move('next');
 						prevent_default = true;
@@ -317,67 +378,6 @@
 		
 		// Select the gallery element and grow a Flowerpot
 		fp.p['gal_s'].eq(fp.p['gal_i']).flowerpot();
-	};
-	
-	// Fade various elements out and restore any changes made to the DOM
-	// or CSS by loading The Flowerpot. In effect, closes The Flowerpot,
-	// though some of its container divs remain.
-	fp.hide = function() {
-		// We're hiding The Flowerpot, so it's not ready for anything!
-		fp.p['ready'] = false;
-		
-		// Get rid of the DOM image, if one is loaded
-		fp.p['dom_img'] = 0;
-		
-		// Selectors we'll access a few times
-		var fp_contents = $('#flowerpotjs-contents'),
-		gallery_links = $('.flowerpotjs-gallery-link,.flowerpotjs-gallery-link-bg,.flowerpotjs-gallery-index-link'),
-		html_objects = $('object,embed'),
-		overlay = $('#flowerpotjs-overlay');
-		
-		// Set the current animation speed (and multiply it if slowdown is on)
-		fp.p['speed'] = (fp.p['slow_anim']) ? fp.s['anim_speed'] * fp.s['anim_multiplier'] : fp.s['anim_speed'];
-		
-		// Set things back to the way they were
-		fp.p['gal_size'] = 0;
-		if (fp.p['type'] == 'div') {
-			if (fp.p['ajax'])
-				$('#flowerpotjs-div-inline').empty();
-			else
-				$(fp.p['src']).swap('#flowerpotjs-div-swap');
-		}
-		$('#flowerpotjs-media').empty(); // Empty the media div to prevent "invisible" playback
-		
-		if ($.browser.msie && $.browser.version < 8)
-			html_objects.css('visibility', 'visible');
-		
-		// Fade out elements successively
-		fp_contents.fadeOut(fp.p['speed']);
-		gallery_links.dequeue();
-		gallery_links.fadeOut(fp.p['speed']);
-		fp_contents.queue(function() {
-			fp_contents.dequeue();
-			// Empty some divs, cleaning stuff up
-			$('#flowerpotjs-contents').empty();
-			$('#flowerpotjs-controls').remove();
-			
-			overlay.fadeOut(fp.p['speed']);
-		});
-		overlay.queue(function() {
-			overlay.dequeue();
-			if (($.browser.msie && $.browser.version < 8) || $.browser.opera)
-				html_objects.css('visibility', 'visible');
-			$('body').removeClass('flowerpot-active');
-			
-			// Reload the initial settings
-			if (fp.p['old_set']) {
-				$.extend(fp.s, fp.p['old_set']);
-				fp.p['old_set'] = false;
-			}
-			
-			// We're done: there's no more Flowerpot, and no overlay
-			fp.p['overlay'] = false;
-		});
 	};
 	
 	// Override default locale array with user-supplied html/text after
@@ -816,7 +816,7 @@
 			fp.p['type'] = 'image';
 			
 			// Hide the overlay -- useful if we're in a gallery
-			fp.hide();
+			fp.close();
 			
 			// Throw an error so the page creator knows something's up
 			throw('Attempted to load an overlay using The Flowerpot, but the src value was invalid or null.');
