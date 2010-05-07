@@ -629,12 +629,12 @@
 			// The Flowerpot, with the suffix "-flowerpot-description"
 			if (!fp.p['desc']) {
 				fp.p['desc'] = $('#' + $(this).attr('id') + '-flowerpot-description');
-				fp.p['desc'] = (fp.p['desc'].length > 0) ? fp.p['desc'].text() : $(this).attr('title');
+				fp.p['desc'] = (fp.p['desc'].length > 0) ? fp.p['desc'].html() : $(this).attr('title');
 				
 				// Last resort: div with the same id as the element invoked
 				// by The Flowerpot (plus the description suffix)
 				if (fp.p['desc'].length == 0 && fp.p['type'] == 'div')
-					fp.p['desc'] = $(fp.p['src'] + '-flowerpot-description').text();
+					fp.p['desc'] = $(fp.p['src'] + '-flowerpot-description').html();
 			}
 			
 			// Load the overlay, which gives a visual queue that clicking a Flowerpot
