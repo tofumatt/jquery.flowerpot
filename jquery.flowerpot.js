@@ -784,7 +784,7 @@
 						$('#flowerpotjs-image').load(function callback(event) {
 							if (fp.p['type'] == 'image')
 								fp.image();
-							if ($.browser.msie && $.browser.version >= 7) {
+							if ($.browser.msie && $.browser.version <= 8) {
 								fp.show();
 							} else {
 								$(fp.p['dom_img']).load(function() {
