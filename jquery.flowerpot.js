@@ -11,22 +11,7 @@
 // HTML plants in an overlayed pot!
 
 ;(function($, undefined) {
-	// User-customizable settings
-	var defaults = {
-		detect_type: true, // Automatically detect types based on href
-		gallery_thumbnails: false, // enable gallery thumnails on the top of the viewport
-		
-		// Locale html/text strings
-		locale: {
-			ajax_error: 'An error occurred during the request.', // HTML to display when we
-			                                                     // have a catchable AJAX error
-			close: 'Close', // HTML for close link
-			loading: 'Loading... "Esc" to close', // HTML that appears when the image is loading
-			next: 'Next →', // HTML inside the gallery "next" link
-			previous: '← Previous' // HTML inside the gallery "previous" link
-		}
-	},
-	animationSpeed = 500, // in ms
+	var animationSpeed = 500, // in ms
 	animationSpeedQuick = 10, // in ms
 	currentFlowerpotElement,
 	// Selectors watched with jQuery().live() -- lightbox is included for compatibility
