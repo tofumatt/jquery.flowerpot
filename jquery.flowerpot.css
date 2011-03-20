@@ -41,11 +41,15 @@
 }
 
 #flowerpot-js-overlay {
+	/*
+	background: #777;
+	opacity: 0.7;
+	*/
 	background: #282828;
-	opacity: 0.99;
+	opacity: 0;
 }
 
-#flowerpot-js-loading, #flowerpot-js-controls-close {
+#flowerpot-js-loading, #flowerpot-js-description, #flowerpot-js-controls-close {
 	background: #030303;
 	border-radius: 6px;
 	-moz-border-radius: 6px;
@@ -63,7 +67,8 @@
 	left: 50%;
 	margin: -21.25px 0 0 -30px;
 	padding: 0 0 7.5px;
-	opacity: 0.75;
+	position: fixed;
+	opacity: 0.85;
 	overflow: hidden;
 	text-align: center;
 	text-shadow: 0 0 3px #030303;
@@ -108,7 +113,6 @@
 	margin: -10px 0 0 0;
 	padding: 0 0 9.5px 1px;
 	opacity: 1;
-	position: fixed;
 	text-decoration: none;
 	width: 25px;
 	z-index: 1003;
@@ -149,4 +153,23 @@
 	display: block;
 	height: 100%;
 	width: 100%;
+}
+
+#flowerpot-js-description {
+	border: 2px solid #e5e5e5;
+	border-radius: 2px;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
+	bottom: 0;
+	display: none;
+	font-size: 14px;
+	height: 16px;
+	left: 50%;
+	line-height: 1em;
+	margin: 0;
+	max-width: 95%;
+	padding: 4px 4px;
+	top: auto;
+	width: auto;
+	z-index: 1003;
 }
