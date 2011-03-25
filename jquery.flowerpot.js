@@ -10,12 +10,14 @@
  */
 // HTML plants in an overlayed pot!
 
-;(function($, undefined) {
+(function($, undefined) {
 	var animationSpeed = 500, // in ms
 	animationSpeedQuick = 10, // in ms
 	currentFlowerpotElement,
 	// Selectors watched with jQuery().live() -- lightbox is included for compatibility
 	defaultSelector = 'a.flowerpot,a.lightbox',
+	// href attribute (or programmed source) of Flowerpot'd element
+	href,
 	// HTML to use when inserting The Flowerpot into the DOM
 	htmlContainer = '<div id="flowerpot-js-container" />',
 	htmlLoading = '<div id="flowerpot-js-loading" />',
@@ -34,9 +36,17 @@
 	initialWidth,
 	// Store library state
 	isLoading = false,
+	// These get used inside the resize method
+	maxHeight,
+	maxWidth,
+	// Assinine optimizations for minification
+	optimizeDot = '•',
+	optimizeNBSP = ' ',
 	// Overlay size and info
 	overlayHeight,
 	overlayWidth,
+	// Rel attribute of the current element
+	rel,
 	// Regexes and type strings
 	regexImage = /\.(png|jpg|jpeg|gif|bmp)\??(.*)?$/i,
 	regexExternal = /^.*:\/\/.*/i,
@@ -58,19 +68,39 @@
 	typeYoutube = 'youtube',
 	// By default, the type is an image
 	type = typeImage,
+	// Stored here for easy access and minification fun (that's right, I care
+	// about the four characters used from an extra `var `)
+	windowHeight,
+	windowWidth,
+	
+	_buildGroup = function() {
+		if (currentFlowerpotElement === undefined || currentFlowerpotElement === null) {
+			return;
+		}
+		
+		if (!rel) {
+			return;
+		}
+		
+		groupName = rel.match(regexGroup)[1];
+		
+		if (groupName) {
+			groupElements = $('a[rel=gallery\\[' + groupName + '\\]]');
+		}
+	},
 	
 	// Detect the type of overlay to load
 	// Sets the type overlay that should be loaded based
 	// on information in the rel attribute (and optionally
 	// through automatic type detection).
 	_detectType = function() {
-		if (src.match(regexImage)) {
+		if (href.match(regexImage)) {
 			type = typeImage;
-		} else if (!src.match(regexExternal) || src.match(window.location.host)) {
+		} else if (!href.match(regexExternal) || href.match(window.location.host)) {
 			type = typeHTML;
-		} else if (src.match(regexVimeo)) {
+		} else if (href.match(regexVimeo)) {
 			type = typeVimeo;
-		} else if (src.match(regexYoutube)) {
+		} else if (href.match(regexYoutube)) {
 			type = typeYoutube;
 		} else {
 			type = typeIframe;
@@ -94,14 +124,14 @@
 		$(htmlLoading).fadeIn(animationSpeed);
 		
 		stateLoadingInterval = setInterval(function() {
-			$(htmlLoading).html("•&nbsp;&nbsp;");
+			$(htmlLoading).html(optimizeDot + optimizeNBSP + optimizeNBSP);
 			
 			setTimeout(function() {
-				$(htmlLoading).html("&nbsp;•&nbsp;");
+				$(htmlLoading).html(optimizeNBSP + optimizeDot + optimizeNBSP);
 			}, animationSpeed / 2);
 			
 			setTimeout(function() {
-				$(htmlLoading).html("&nbsp;&nbsp;•");
+				$(htmlLoading).html(optimizeNBSP + optimizeNBSP + optimizeDot);
 			}, animationSpeed);
 		}, animationSpeed * 1.5);
 	},
@@ -110,12 +140,12 @@
 		// If no size if specified, use the size in
 		// the properties (default behaviour)
 		// if (!size)
-		// 	size = fp.p['size'];
-		var windowHeight = $(window).height(),
-		windowWidth = $(window).width(),
+		// size = fp.p['size'];
+		windowHeight = $(window).height();
+		windowWidth = $(window).width();
 		// The max height + width should allow for some space
 		// between the edge of the viewport and the overlay.
-		maxHeight = windowHeight - windowHeight / 10,
+		maxHeight = windowHeight - windowHeight / 10;
 		maxWidth = windowWidth - windowWidth / 10;
 		
 		// Use the max size allowed if this isn't an image
@@ -162,8 +192,8 @@
 		
 		// Adjust the size of the iframe overlay to compensate for scrollbars
 		if (type === typeIframe) {
-			height -= 10;
-			width -= 10;
+			overlayHeight -= 10;
+			overlayWidth -= 10;
 		}
 		
 		// Round the values so we don't get pixels represented as floats
@@ -243,16 +273,25 @@
 		// Load up the "loading" overlay.
 		$.flowerpot.loading();
 		
-		imageNode = $('<img id="flowerpot-js-image" src="' + $(this).attr('href') + '" />');
-		$(htmlOverlayContents).html(imageNode);
+		href = $(this).attr('href');
+		rel = $(this).attr('rel');
 		
-		_buildGroup();
+		_detectType();
 		
-		$(imageNode).load(function(event) {
-			initialHeight = imageNode.attr('height'),
-			initialWidth = imageNode.attr('width');
-			$.flowerpot.show();
-		});
+		if (type == typeImage) {
+			imageNode = $('<img id="flowerpot-js-image" src="' + href + '" alt="TODO: Get alt text" />');
+			$(htmlOverlayContents).html(imageNode);
+			
+			_buildGroup();
+			
+			$(imageNode).load(function(event) {
+				initialHeight = imageNode.attr('height');
+				initialWidth = imageNode.attr('width');
+				$.flowerpot.show();
+			});
+		} else if (type == typeHTML) {
+			// foo
+		}
 		
 		// Return this object so we can jQuery method chain.
 		return this;
@@ -280,7 +319,7 @@
 				$(element).hide();
 			});
 			$(htmlOverlayContents).css({opacity: 1});
-			$(htmlOverlayDescription).css({opacity: 0.85})
+			$(htmlOverlayDescription).css({opacity: 0.85});
 			$(htmlControlsClose).css({opacity: 1});
 		}, animationSpeed * 2);
 	};
@@ -290,11 +329,11 @@
 		$('body').append($(htmlContainer).append(htmlOverlay, htmlLoading, htmlOverlayContents, htmlOverlayDescription, htmlControlsClose));
 		
 		// Assign the variables to actual DOM elements rather than using selectors.
-		htmlContainer = $('#flowerpot-js-container'),
-		htmlLoading = $('#flowerpot-js-loading'),
-		htmlOverlay = $('#flowerpot-js-overlay'),
-		htmlOverlayContents = $('#flowerpot-js-contents'),
-		htmlOverlayDescription = $('#flowerpot-js-description'),
+		htmlContainer = $('#flowerpot-js-container');
+		htmlLoading = $('#flowerpot-js-loading');
+		htmlOverlay = $('#flowerpot-js-overlay');
+		htmlOverlayContents = $('#flowerpot-js-contents');
+		htmlOverlayDescription = $('#flowerpot-js-description');
 		htmlControlsClose = $('#flowerpot-js-controls-close');
 		
 		// Assign a Flowerpot event to every <a> element with the class "flowerpot" and "lightbox".
@@ -309,6 +348,20 @@
 			e.preventDefault();
 			
 			$.flowerpot.hide();
+		});
+		
+		// Go to the previous gallery item when the "previous" arrow is clicked.
+		$('#flowerpot-js-controls-previous').click(function(e) {
+			e.preventDefault();
+			
+			$.flowerpot.previous();
+		});
+		
+		// Go to the previous gallery item when the "previous" arrow is clicked.
+		$('#flowerpot-js-controls-next').click(function(e) {
+			e.preventDefault();
+			
+			$.flowerpot.next();
 		});
 		
 		// Attach an event fired on event resize to make sure the overlay doesn't exceed the
@@ -336,10 +389,9 @@
 		});
 		
 		if ($(currentFlowerpotElement).attr('title')) {
-			$(htmlOverlayDescription).html($(currentFlowerpotElement).attr('title')).fadeIn(animationSpeed);;
+			$(htmlOverlayDescription).html($(currentFlowerpotElement).attr('title')).fadeIn(animationSpeed);
 		}
 		
-		htmlOverlayDescription
 		_stopLoadingAnimation();
 	};
 	
