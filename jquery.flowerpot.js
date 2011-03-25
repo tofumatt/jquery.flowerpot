@@ -25,6 +25,8 @@
 	htmlOverlayContents = '<div id="flowerpot-js-contents" />',
 	htmlOverlayDescription = '<div id="flowerpot-js-description" />',
 	htmlControlsClose = '<a id="flowerpot-js-controls-close" href="#close">X</a>',
+	htmlControlsNext = '<a id="flowerpot-js-controls-next" href="#next">›</a>',
+	htmlControlsPrevious = '<a id="flowerpot-js-controls-previous" href="#previous">‹</a>',
 	// Group elements and current index
 	groupElements = [],
 	groupIndex = 0,
@@ -219,6 +221,18 @@
 			'margin-left': (overlayWidth - 8.5) + 'px',
 			top: (($(window).height() / 2) - (overlayHeight / 2) - 16) + 'px'
 		}, animationSpeedQuick);
+		
+		if (groupElements.length) {
+			$(htmlControlsNext).animate({
+				left: (($(window).width() / 2) - (overlayWidth / 2)) + 'px',
+				'margin-left': (overlayWidth - 8.5) + 'px'
+			}, animationSpeedQuick);
+		
+			$(htmlControlsPrevious).animate({
+				left: (($(window).width() / 2) - (overlayWidth / 2) - 12.5) + 'px',
+				'margin-right': overlayWidth + 'px'
+			}, animationSpeedQuick);
+		}
 	},
 	
 	_stopLoadingAnimation = function() {
@@ -307,7 +321,7 @@
 	
 	$.flowerpot.hide = function() {
 		if (!isLoading) {
-			$.each([htmlOverlay, htmlOverlayContents, htmlOverlayDescription, htmlControlsClose], function(i, element) {
+			$.each([htmlOverlay, htmlOverlayContents, htmlOverlayDescription, htmlControlsClose, htmlControlsNext, htmlControlsPrevious], function(i, element) {
 				$(element).animate({opacity: 0}, animationSpeed / 2);
 			});
 		} else {
@@ -315,18 +329,17 @@
 		}
 		
 		setTimeout(function() {
-			$.each([htmlOverlay, htmlOverlayContents, htmlOverlayDescription, htmlControlsClose], function(i, element) {
-				$(element).hide();
+			$.each([htmlOverlay, htmlOverlayContents, htmlOverlayDescription, htmlControlsClose, htmlControlsNext, htmlControlsPrevious], function(i, element) {
+				$(element).hide().css({opacity: 1});
 			});
-			$(htmlOverlayContents).css({opacity: 1});
 			$(htmlOverlayDescription).css({opacity: 0.85});
-			$(htmlControlsClose).css({opacity: 1});
+			$(htmlOverlay).css({opacity: 0});
 		}, animationSpeed * 2);
 	};
 	
 	$.flowerpot.init = function() {
 		// Insert the basic Flowerpot HTML into the DOM.
-		$('body').append($(htmlContainer).append(htmlOverlay, htmlLoading, htmlOverlayContents, htmlOverlayDescription, htmlControlsClose));
+		$('body').append($(htmlContainer).append(htmlOverlay, htmlLoading, htmlOverlayContents, htmlOverlayDescription, htmlControlsClose, htmlControlsNext, htmlControlsPrevious));
 		
 		// Assign the variables to actual DOM elements rather than using selectors.
 		htmlContainer = $('#flowerpot-js-container');
@@ -335,6 +348,8 @@
 		htmlOverlayContents = $('#flowerpot-js-contents');
 		htmlOverlayDescription = $('#flowerpot-js-description');
 		htmlControlsClose = $('#flowerpot-js-controls-close');
+		htmlControlsNext = $('#flowerpot-js-controls-next');
+		htmlControlsPrevious = $('#flowerpot-js-controls-previous');
 		
 		// Assign a Flowerpot event to every <a> element with the class "flowerpot" and "lightbox".
 		$(defaultSelector).live('click', function(e) {
@@ -387,6 +402,12 @@
 		$.each([htmlOverlayContents, htmlControlsClose], function(i, element) {
 			$(element).fadeIn(animationSpeed);
 		});
+		
+		if (groupElements.length) {
+			$.each([htmlControlsNext, htmlControlsPrevious], function(i, element) {
+				$(element).fadeIn(animationSpeed);
+			});
+		}
 		
 		if ($(currentFlowerpotElement).attr('title')) {
 			$(htmlOverlayDescription).html($(currentFlowerpotElement).attr('title')).fadeIn(animationSpeed);

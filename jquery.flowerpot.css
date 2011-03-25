@@ -49,7 +49,7 @@
 	opacity: 0;
 }
 
-#flowerpot-js-loading, #flowerpot-js-description, #flowerpot-js-controls-close {
+#flowerpot-js-loading, #flowerpot-js-description, #flowerpot-js-controls-close, #flowerpot-js-controls-next, #flowerpot-js-controls-previous {
 	background: #030303;
 	border-radius: 6px;
 	-moz-border-radius: 6px;
@@ -101,7 +101,7 @@
 	background: none;
 }
 
-#flowerpot-js-controls-close {
+#flowerpot-js-controls-close, #flowerpot-js-controls-next, #flowerpot-js-controls-previous {
 	border: 2px solid #e5e5e5;
 	border-radius: 40px;
 	-moz-border-radius: 40px;
@@ -116,6 +116,10 @@
 	text-decoration: none;
 	width: 25px;
 	z-index: 1003;
+}
+
+#flowerpot-js-controls-next, #flowerpot-js-controls-previous {
+	margin-top: -22.5px;
 }
 
 #flowerpot-js-contents {
