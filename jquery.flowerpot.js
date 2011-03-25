@@ -81,6 +81,7 @@
 		}
 		
 		if (!rel) {
+			groupElements = [];
 			return;
 		}
 		
