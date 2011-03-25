@@ -23,6 +23,10 @@
 	htmlOverlayContents = '<div id="flowerpot-js-contents" />',
 	htmlOverlayDescription = '<div id="flowerpot-js-description" />',
 	htmlControlsClose = '<a id="flowerpot-js-controls-close" href="#close">X</a>',
+	// Group elements and current index
+	groupElements = [],
+	groupIndex = 0,
+	groupName,
 	// Main image node
 	imageNode,
 	// Proposed max width/height for an overlay
@@ -36,6 +40,7 @@
 	// Regexes and type strings
 	regexImage = /\.(png|jpg|jpeg|gif|bmp)\??(.*)?$/i,
 	regexExternal = /^.*:\/\/.*/i,
+	regexGroup = /(?:.*\w+)?gallery\[(.*)\](?:\w+.*)?/i,
 	regexTypeImage = /.*\w+(image)\w+.*/i,
 	regexTypeHTML = /.*\w+(ajax|div)\w+.*/i,
 	regexTypeIframe = /.*\w+(iframe)\w+.*/i,
@@ -176,7 +181,6 @@
 		}, animationSpeedQuick);
 		
 		$(htmlOverlayDescription).animate({
-			'margin-left': '-' + (($(htmlOverlayDescription).width() / 2) + 2) + 'px',
 			top: (($(window).height() / 2) + (overlayHeight / 2)) + 'px'
 		}, animationSpeedQuick);
 		
@@ -242,15 +246,13 @@
 		imageNode = $('<img id="flowerpot-js-image" src="' + $(this).attr('href') + '" />');
 		$(htmlOverlayContents).html(imageNode);
 		
+		_buildGroup();
+		
 		$(imageNode).load(function(event) {
 			initialHeight = imageNode.attr('height'),
 			initialWidth = imageNode.attr('width');
 			$.flowerpot.show();
 		});
-		
-		if ($(this).attr('title')) {
-			$(htmlOverlayDescription).html($(this).attr('title'));
-		}
 		
 		// Return this object so we can jQuery method chain.
 		return this;
@@ -328,10 +330,14 @@
 	$.flowerpot.show = function() {
 		_resize();
 		
-		$(htmlOverlay).animate({opacity: 0.99}, animationSpeed)
-		$.each([htmlOverlayContents, htmlControlsClose, htmlOverlayDescription], function(i, element) {
+		$(htmlOverlay).animate({opacity: 0.99}, animationSpeed);
+		$.each([htmlOverlayContents, htmlControlsClose], function(i, element) {
 			$(element).fadeIn(animationSpeed);
 		});
+		
+		if ($(currentFlowerpotElement).attr('title')) {
+			$(htmlOverlayDescription).html($(currentFlowerpotElement).attr('title')).fadeIn(animationSpeed);;
+		}
 		
 		htmlOverlayDescription
 		_stopLoadingAnimation();

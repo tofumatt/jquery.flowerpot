@@ -164,12 +164,11 @@
 	display: none;
 	font-size: 14px;
 	height: 16px;
-	left: 50%;
+	left: 12.5%;
 	line-height: 1em;
 	margin: 0;
-	max-width: 95%;
 	padding: 4px 4px;
 	top: auto;
-	width: auto;
+	width: 75%;
 	z-index: 1003;
 }
