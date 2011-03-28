@@ -20,10 +20,6 @@
 
 #flowerpot-js-container * {
 	text-shadow: none !important;
-	transition: all 500ms ease-in-out;
-	-moz-transition: all 500ms ease-in-out;
-	-o-transition: all 500ms ease-in-out;
-	-webkit-transition: all 500ms ease-in-out;
 }
 
 #flowerpot-js-overlay, #flowerpot-js-loading {
@@ -32,10 +28,6 @@
 	height: 100%;
 	left: 0;
 	position: fixed;
-	transition: all 500ms ease-in-out;
-	-moz-transition: all 500ms ease-in-out;
-	-o-transition: all 500ms ease-in-out;
-	-webkit-transition: all 500ms ease-in-out;
 	top: 0;
 	width: 100%;
 	z-index: 1000;
