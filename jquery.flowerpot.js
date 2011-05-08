@@ -1,4 +1,4 @@
-/**
+/*!
  * Flowerpot
  *
  * A jQuery plugin to overlay images, inline content, and more.
@@ -70,6 +70,7 @@
 	regexYoutube = /youtube\.com/i,
 	// State variables
 	stateLoadingInterval,
+	stateWindowResizeInterval = null,
 	// Strings for types
 	typeHTML = 'html',
 	typeImage = 'image',
@@ -82,6 +83,7 @@
 	// about the four characters used from an extra `var `)
 	windowHeight,
 	windowWidth,
+	windowResizeTime = 300, // Only calculate window resizes every 300ms
 	
 	_buildGroup = function() {
 		if (currentFlowerpotElement === undefined || currentFlowerpotElement === null) {
@@ -189,17 +191,6 @@
 	},
 	
 	_resize = function() {
-		if (isActive) {
-			$(htmlOverlayContents).css({
-				height: '',
-				width: ''
-			});
-		}
-		
-		// If no size if specified, use the size in
-		// the properties (default behaviour)
-		// if (!size)
-		// size = fp.p['size'];
 		windowHeight = $(window).height();
 		windowWidth = $(window).width();
 		// The max height + width should allow for some space
@@ -269,9 +260,9 @@
 			width: overlayWidth + 'px'
 		}, animationSpeedQuick);
 		
-		$(htmlOverlayDescription).animate({
+		$(htmlOverlayDescription).css({
 			top: (($(window).height() / 2) + (overlayHeight / 2)) + 'px'
-		}, animationSpeedQuick);
+		});
 		
 		$(htmlControlsClose).animate({
 			left: (($(window).width() / 2) - (overlayWidth / 2)) + 'px',
@@ -431,7 +422,13 @@
 		// Attach an event fired on event resize to make sure the overlay doesn't exceed the
 		// viewport's height/width.
 		$(window).resize(function(e) {
-			_resize();
+			// Run the resize code only if it isn't already running
+			if (isActive && stateWindowResizeInterval === null) {
+				stateWindowResizeInterval = setTimeout(function() {
+					_resize();
+					stateWindowResizeInterval = null;
+				}, windowResizeTime);
+			}
 		});
 	};
 	
