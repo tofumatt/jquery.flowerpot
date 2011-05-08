@@ -11,6 +11,11 @@
 // HTML plants in an overlayed pot!
 
 (function($, undefined) {
+	if ($ === undefined) {
+		alert('jQuery is undefined!');
+		return;
+	}
+	
 	var animationSpeed = 500, // in ms
 	animationSpeedQuick = 10, // in ms
 	currentFlowerpotElement,
@@ -31,12 +36,15 @@
 	groupElements = [],
 	groupIndex = 0,
 	groupName,
+	groupPositionNext = -1,
+	groupPositionPrevious = -2,
 	// Main image node
 	imageNode,
 	// Proposed max width/height for an overlay
 	initialHeight,
 	initialWidth,
 	// Store library state
+	isActive = false,
 	isLoading = false,
 	// These get used inside the resize method
 	maxHeight,
@@ -85,11 +93,14 @@
 			return;
 		}
 		
-		groupName = rel.match(regexGroup)[1];
+		var match = rel.match(regexGroup);
 		
-		if (groupName) {
-			groupElements = $('a[rel=gallery\\[' + groupName + '\\]]');
+		if (match.length < 2) {
+			groupElements = [];
+			return;
 		}
+		
+		groupElements = $('a.flowerpot[rel=gallery\\[' + match[1] + '\\]]');
 	},
 	
 	// Detect the type of overlay to load
@@ -123,6 +134,44 @@
 		}
 	},
 	
+	// Move the gallery index
+	// Load a photo from the current gallery based on the index
+	// number supplied.
+	_galleryMove = function(index) {
+		if (index === groupIndex) { // Don't do anything if we're already
+		                            // at the requested index
+			return false;
+		}
+		
+		isLoading = true;
+		
+		if (index === groupPositionPrevious) { // Move back (possibly looping around)
+			groupIndex--;
+			
+			if (groupIndex < 0) {
+				groupIndex = groupElements.length - 1;
+			}
+		} else if (index === groupPositionNext) { // Move ahead (possibly looping around)
+			groupIndex++;
+			
+			if (groupIndex >= groupElements.length) {
+				groupIndex = 0;
+			}
+		} else { // Go right to the requested index
+			groupIndex = index;
+		}
+		
+		// If the previous index was an inline div, swap the
+		// placeholder back into The Flowerpot
+		// if (fp.p['src'] && !fp.p['ajax'] && fp.p['type'] == 'div')
+		// 	$(fp.p['src']).swap('#flowerpotjs-div-swap');
+		
+		// Select the gallery element and grow a Flowerpot
+		currentFlowerpotElement = groupElements[groupIndex];
+		
+		$.flowerpot.show();
+	},
+	
 	_loadingAnimation = function() {
 		$(htmlLoading).fadeIn(animationSpeed);
 		
@@ -140,6 +189,13 @@
 	},
 	
 	_resize = function() {
+		if (isActive) {
+			$(htmlOverlayContents).css({
+				height: '',
+				width: ''
+			});
+		}
+		
 		// If no size if specified, use the size in
 		// the properties (default behaviour)
 		// if (!size)
@@ -288,25 +344,8 @@
 		// Load up the "loading" overlay.
 		$.flowerpot.loading();
 		
-		href = $(this).attr('href');
-		rel = $(this).attr('rel');
-		
-		_detectType();
-		
-		if (type == typeImage) {
-			imageNode = $('<img id="flowerpot-js-image" src="' + href + '" alt="TODO: Get alt text" />');
-			$(htmlOverlayContents).html(imageNode);
-			
-			_buildGroup();
-			
-			$(imageNode).load(function(event) {
-				initialHeight = imageNode.attr('height');
-				initialWidth = imageNode.attr('width');
-				$.flowerpot.show();
-			});
-		} else if (type == typeHTML) {
-			// foo
-		}
+		// Show the actual content
+		$.flowerpot.show();
 		
 		// Return this object so we can jQuery method chain.
 		return this;
@@ -335,6 +374,7 @@
 			});
 			$(htmlOverlayDescription).css({opacity: 0.85});
 			$(htmlOverlay).css({opacity: 0});
+			isActive = false;
 		}, animationSpeed * 2);
 	};
 	
@@ -370,12 +410,20 @@
 		$('#flowerpot-js-controls-previous').click(function(e) {
 			e.preventDefault();
 			
+			if (isLoading) {
+				return;
+			}
+			
 			$.flowerpot.previous();
 		});
 		
 		// Go to the previous gallery item when the "previous" arrow is clicked.
 		$('#flowerpot-js-controls-next').click(function(e) {
 			e.preventDefault();
+			
+			if (isLoading) {
+				return;
+			}
 			
 			$.flowerpot.next();
 		});
@@ -392,29 +440,82 @@
 		_loadingAnimation();
 	};
 	
+	$.flowerpot.next = function() {
+		_galleryMove(groupPositionNext);
+	};
+	
+	$.flowerpot.previous = function() {
+		_galleryMove(groupPositionPrevious);
+	};
+	
 	$.flowerpot.resize = function() {
 		_resize();
 	};
 	
 	$.flowerpot.show = function() {
-		_resize();
+		href = $(currentFlowerpotElement).attr('href');
+		rel = $(currentFlowerpotElement).attr('rel');
 		
-		$(htmlOverlay).animate({opacity: 0.99}, animationSpeed);
-		$.each([htmlOverlayContents, htmlControlsClose], function(i, element) {
-			$(element).fadeIn(animationSpeed);
-		});
+		_detectType();
 		
-		if (groupElements.length) {
-			$.each([htmlControlsNext, htmlControlsPrevious], function(i, element) {
-				$(element).fadeIn(animationSpeed);
+		if (type == typeImage) {
+			/*
+			if (imageNode !== undefined) {
+				$(htmlOverlayContents).html('');
+				imageNode.remove();
+				imageNode = null;
+			}
+			*/
+			
+			imageNode = $('<img id="flowerpot-js-image" src="' + href + '" alt="TODO: Get alt text" style="display: none;" />');
+			
+			$(imageNode).load(function() {
+				initialHeight = this.height;
+				initialWidth = this.width;
+				
+				$(htmlOverlayContents).html(this);
+				$('#flowerpot-js-image').fadeIn(animationSpeed);
+				
+				_resize();
 			});
+		} else if (type == typeHTML) {
+			// foo
+		}
+		
+		if (!isActive) {
+			_buildGroup();
+			
+			setTimeout(function() {
+				_resize();
+				
+				$(htmlOverlay).css({opacity: 0});
+				$(htmlOverlay).animate({opacity: 0.99}, animationSpeed);
+				$.each([htmlOverlayContents, htmlControlsClose], function(i, element) {
+					$(element).fadeIn(animationSpeed);
+				});
+				
+				if (groupElements.length) {
+					$.each([htmlControlsNext, htmlControlsPrevious], function(i, element) {
+						$(element).fadeIn(animationSpeed);
+					});
+				}
+				
+				// Flowerpot is active now; this affects animation behaviour
+				isActive = true;
+			}, animationSpeed);
+			
+			_stopLoadingAnimation();
+		} else {
+			_stopLoadingAnimation();
 		}
 		
 		if ($(currentFlowerpotElement).attr('title')) {
 			$(htmlOverlayDescription).html($(currentFlowerpotElement).attr('title')).fadeIn(animationSpeed);
+		} else {
+			$(htmlOverlayDescription).html('').fadeOut(animationSpeed);
 		}
 		
-		_stopLoadingAnimation();
+		_resize();
 	};
 	
 	$(document).ready(function() {
