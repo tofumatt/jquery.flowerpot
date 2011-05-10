@@ -1,5 +1,5 @@
 /**
- * The Flowerpot
+ * Flowerpot
  *
  * A jQuery plugin to overlay images, inline content, and more.
  * Dual-licensed under the MIT and GPL (v2 or later) licenses.
@@ -18,207 +18,161 @@
  *
  */
 
-#flowerpotjs-overlay {
-	background-color: black;
+#flowerpot-js-container * {
+	text-shadow: none !important;
+}
+
+#flowerpot-js-overlay, #flowerpot-js-loading {
+	background: #030303;
+	display: none;
 	height: 100%;
 	left: 0;
 	position: fixed;
 	top: 0;
 	width: 100%;
-	z-index: 100;
+	z-index: 1000;
 }
-	
-	#flowerpotjs-overlay span {
-		color: white;
-		display: block;
-		float: right;
-		font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Helvetica, Arial, sans-serif;
-		font-size: 20px;
-		height: 20px;
-		left: 50%;
-		margin: -20px 0 0 -125px;
-		padding: 5px 0;
-		position: fixed;
-		text-align: center;
-		text-shadow: 1px 1px 2px black;
-		top: 50%;
-		width: 250px;
-		z-index: 101;
-	}
 
-#flowerpotjs-close {
-	background: black;
-	border: 2px solid white;
-	color: white;
-	display: block;
-	font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Helvetica, Arial, sans-serif;
-	font-size: 14px;
-	font-weight: bold;
-	height: 20px;
-	margin: 0;
-	outline: none !important;
-	padding: 2px 4px 0;
-	position: absolute;
+#flowerpot-js-overlay {
+	/*
+	background: #777;
+	opacity: 0.7;
+	*/
+	background: #282828;
+	opacity: 0;
+}
+
+#flowerpot-js-loading, #flowerpot-js-description, #flowerpot-js-controls-close, #flowerpot-js-controls-next, #flowerpot-js-controls-previous {
+	background: #030303;
+	border-radius: 6px;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	background-clip: padding-box;
+	-webkit-background-clip: padding-box;
+	box-shadow: 0 0 6px #030303;
+	-moz-box-shadow: 0 0 6px #030303;
+	-webkit-box-shadow: 0 0 6px #030303;
+	color: #fefefe;
+	cursor: default;
+	font-family: Verdana, "Helvetica Neue", Helvetica, "FreeSans", Arial, "DejaVu Sans", sans-serif;
+	font-size: 30px;
+	height: 35px;
+	left: 50%;
+	margin: -21.25px 0 0 -30px;
+	padding: 0 0 7.5px;
+	position: fixed;
+	opacity: 0.85;
+	overflow: hidden;
 	text-align: center;
-	text-decoration: none !important;
-	top: -1px;
-	z-index: 104;
+	text-shadow: 0 0 3px #030303;
+	top: 50%;
+	width: 60px;
+	z-index: 1001;
 }
 
-#flowerpotjs-contents {
-	background: white;
-	border: 1px solid black;
+#flowerpot-js-loading::selection {
+	background: none;
+}
+
+#flowerpot-js-loading::-moz-selection {
+	background: none;
+}
+
+#flowerpot-js-loading::-webkit-selection {
+	background: none;
+}
+
+#flowerpot-js-controls-close::selection {
+	background: none;
+}
+
+#flowerpot-js-controls-close::-moz-selection {
+	background: none;
+}
+
+#flowerpot-js-controls-close::-webkit-selection {
+	background: none;
+}
+
+#flowerpot-js-controls-close, #flowerpot-js-controls-next, #flowerpot-js-controls-previous {
+	border: 2px solid #e5e5e5;
+	border-radius: 40px;
+	-moz-border-radius: 40px;
+	-webkit-border-radius: 40px;
+	cursor: pointer;
+	display: none;
+	font-size: 18px;
+	height: 15px;
+	margin: -10px 0 0 0;
+	padding: 0 0 9.5px 1px;
+	opacity: 1;
+	text-decoration: none;
+	width: 25px;
+	z-index: 1003;
+}
+
+#flowerpot-js-controls-next, #flowerpot-js-controls-previous {
+	margin-top: -22.5px;
+}
+
+#flowerpot-js-contents {
+	border-radius: 2px;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
+	background-clip: padding-box;
+	-webkit-background-clip: padding-box;
+	box-shadow: 0 0 6px #030303;
+	-moz-box-shadow: 0 0 6px #030303;
+	-webkit-box-shadow: 0 0 6px #030303;
+	border: 4px solid #e5e5e5;
+	cursor: default;
+	display: none;
 	left: 50%;
 	position: fixed;
 	top: 50%;
-	z-index: 102;
+	z-index: 1002;
 }
 
-#flowerpotjs-description, #flowerpotjs-description-bg {
-	color: white;
+#flowerpot-js-contents.flowerpot-type-image {
+	background: #252525;
+}
+
+#flowerpot-js-contents.flowerpot-type-html {
+	background: #fefefe;
+}
+
+#flowerpot-js-contents::selection {
+	background: none;
+}
+
+#flowerpot-js-contents::-moz-selection {
+	background: none;
+}
+
+#flowerpot-js-contents::-webkit-selection {
+	background: none;
+}
+
+#flowerpot-js-contents img {
 	display: block;
-	font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Helvetica, Arial, sans-serif;
-	font-size: 14px;
-	height: auto;
-	left: -10%;
-	margin: 101% auto 0;
-	padding: 0;
-	position: absolute;
-	text-align: center;
-	width: 120%;
-	z-index: 103;
-}
-	
-	#flowerpotjs-description-bg {
-		background: black;
-	}
-
-.flowerpot-description-inner {
-	padding: 2px;
+	height: 100%;
+	width: 100%;
 }
 
-.flowerpotjs-gallery-link, .flowerpotjs-gallery-link-bg {
-	color: white;
-	font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Helvetica, Arial, sans-serif;
+#flowerpot-js-description {
+	border: 2px solid #e5e5e5;
+	border-radius: 2px;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
+	bottom: 0;
+	display: none;
 	font-size: 14px;
 	height: 16px;
-	overflow: none;
-	padding: 8px 4px;
-	position: fixed;
-	text-decoration: none;
-	top: 60%;
-	width: 84px;
-	z-index: 103;
-}
-	
-	.flowerpotjs-gallery-link-bg {
-		background: black;
-	}
-	
-	#flowerpotjs-prev-link, #flowerpotjs-prev-link-bg {
-		left: 8px;
-		text-align: left;
-	}
-	
-	#flowerpotjs-next-link, #flowerpotjs-next-link-bg {
-		right: 8px;
-		text-align: right;
-	}
-
-#flowerpotjs-controls-images {
-	display: none;
-	left: 0;
-	margin: 0 auto;
-	padding: 0;
-	position: fixed;
-	text-align: center;
-	top: 0;
-	width: auto;
-	z-index: 100;
-}
-	
-	#flowerpotjs-controls-images li {
-		display: inline;
-		margin: 0;
-		padding: 0;
-	}
-	
-	#flowerpotjs-controls-images a {
-		border: 1px solid white !important;
-		display: inline;
-		float: left;
-		margin: 1px 1px;
-		padding: 0;
-		text-decoration: none !important;
-	}
-	
-	#flowerpotjs-controls-images li.flowerpotjs-thumbnail-active a {
-		border: 2px solid white !important;
-		margin: 0 1px;
-	}
-	
-	#flowerpotjs-controls-images a img {
-		border: none !important;
-		display: block;
-		margin: 0;
-		padding: 0;
-	}
-	
-	#flowerpotjs-controls-images a span {
-		background: black;
-		border: none !important;
-		color: white !important;
-		display: block;
-		font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Helvetica, Arial, sans-serif;
-		font-size: 14px;
-		margin: 0;
-		padding: 0;
-		width: 50px;
-	}
-
-#flowerpotjs-iframe-inline {
-	border: none;
-}
-
-#flowerpotjs-media {
-	background: black;
-}
-
-/**
- * IE 6 CSS Fixes
- *
- * Fixes CSS problems with IE 6 + The Flowerpot.
- *
- */
-
-* html #flowerpotjs-overlay {
-	position: absolute;
-}
-
-* html #flowerpotjs-close {
-	display: inline-block;
-	margin-bottom: -32px;
-}
-
-* html #flowerpotjs-contents, * html #flowerpotjs-overlay span {
-	margin-left: expression(0 - parseInt(this.offsetWidth / 2) + (document.documentElement && document.documentElement.scrollLeft || document.body.scrollLeft) + 'px');
-	margin-top: expression(0 - parseInt(this.offsetHeight / 2) + (document.documentElement && document.documentElement.scrollTop || document.body.scrollTop) - ((document.getElementById('flowerpotjs-description')) ? (document.getElementById('flowerpotjs-description').offsetHeight * .25 + 3) : 0) + 'px');
-	position: absolute;
-}
-
-* html .flowerpotjs-gallery-link, * html .flowerpotjs-gallery-link-bg {
-	margin-top: expression(0 - parseInt(this.offsetHeight / 2) + (document.documentElement && document.documentElement.scrollTop || document.body.scrollTop) + 'px');
-	position: absolute;
-}
-
-* html #flowerpotjs-controls-images {
-	margin-top: expression(0 - parseInt(this.offsetHeight / 100) + (document.documentElement && document.documentElement.scrollTop || document.body.scrollTop) + 'px');
-	position: absolute;
-}
-
-* html #flowerpotjs-controls-images a {
-	margin: 2px 1px;
-}
-* html #flowerpotjs-controls-images li.flowerpotjs-thumbnail-active a {
-	margin: 1px 1px;
+	left: 12.5%;
+	line-height: 1em;
+	margin: 0;
+	padding: 4px 4px;
+	top: auto;
+	width: 75%;
+	z-index: 1003;
 }
