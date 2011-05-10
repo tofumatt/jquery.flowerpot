@@ -12,7 +12,7 @@
 
 (function($, undefined) {
 	if ($ === undefined) {
-		alert('jQuery is undefined!');
+		throw('jQuery is undefined, so Flowerpot is nigh unusable. You should define the jQuery global, as Flowerpot looks for it.');
 		return;
 	}
 	
@@ -32,6 +32,7 @@
 	htmlControlsClose = '<a id="flowerpot-js-controls-close" href="#close">X</a>',
 	htmlControlsNext = '<a id="flowerpot-js-controls-next" href="#next">›</a>',
 	htmlControlsPrevious = '<a id="flowerpot-js-controls-previous" href="#previous">‹</a>',
+	htmlSwapDiv,
 	// Group elements and current index
 	groupElements = [],
 	groupIndex = 0,
@@ -97,7 +98,7 @@
 		
 		var match = rel.match(regexGroup);
 		
-		if (match.length < 2) {
+		if (!match || match.length < 2) {
 			groupElements = [];
 			return;
 		}
@@ -360,6 +361,10 @@
 		}
 		
 		setTimeout(function() {
+			if (type === typeHTML) {
+				$(jQuery(currentFlowerpotElement).attr('href')).swap('#flowerpot-js-swap');
+			}
+
 			$.each([htmlOverlay, htmlOverlayContents, htmlOverlayDescription, htmlControlsClose, htmlControlsNext, htmlControlsPrevious], function(i, element) {
 				$(element).hide().css({opacity: 1});
 			});
@@ -455,28 +460,23 @@
 		
 		_detectType();
 		
-		if (type == typeImage) {
-			/*
-			if (imageNode !== undefined) {
-				$(htmlOverlayContents).html('');
-				imageNode.remove();
-				imageNode = null;
-			}
-			*/
-			
+		if (type === typeImage) {
 			imageNode = $('<img id="flowerpot-js-image" src="' + href + '" alt="TODO: Get alt text" style="display: none;" />');
 			
 			$(imageNode).load(function() {
 				initialHeight = this.height;
 				initialWidth = this.width;
 				
-				$(htmlOverlayContents).html(this);
+				$(htmlOverlayContents).attr('class', 'flowerpot-type-image').html(this);
 				$('#flowerpot-js-image').fadeIn(animationSpeed);
 				
 				_resize();
 			});
-		} else if (type == typeHTML) {
-			// foo
+		} else if (type === typeHTML) {
+			htmlSwapDiv = jQuery('<div id="flowerpot-js-swap" />');
+			
+			$(htmlOverlayContents).attr('class', 'flowerpot-type-html').html(htmlSwapDiv);
+			$(htmlSwapDiv).swap(href);
 		}
 		
 		if (!isActive) {
@@ -513,6 +513,29 @@
 		}
 		
 		_resize();
+	};
+	
+	/*! Copyright (c) 2008 Brandon Aaron (brandon.aaron@gmail.com || http://brandonaaron.net)
+	 * Dual licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) 
+	 * and GPL (http://www.opensource.org/licenses/gpl-license.php) licenses.
+	 */
+	
+	/**
+	 * Swaps out one element with another. It can take either a DOM element, 
+	 * a selector or a jQuery object. It only swaps the first matched element.
+	 */
+	$.fn.swap = function(b) {
+		b = jQuery(b)[0];
+		var a = this[0],
+		    a2 = a.cloneNode(true),
+		    b2 = b.cloneNode(true),
+		    stack = this;
+			
+		a.parentNode.replaceChild(b2, a);
+		b.parentNode.replaceChild(a2, b);
+		
+		stack[0] = a2;
+		return this.pushStack( stack );
 	};
 	
 	$(document).ready(function() {
