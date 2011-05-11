@@ -13,7 +13,6 @@
 (function($, undefined) {
 	if ($ === undefined) {
 		throw('jQuery is undefined, so Flowerpot is nigh unusable. You should define the jQuery global, as Flowerpot looks for it.');
-		return;
 	}
 	
 	var animationSpeed = 500, // in ms
@@ -364,7 +363,7 @@
 			if (type === typeHTML) {
 				$(jQuery(currentFlowerpotElement).attr('href')).swap('#flowerpot-js-swap');
 			}
-
+			
 			$.each([htmlOverlay, htmlOverlayContents, htmlOverlayDescription, htmlControlsClose, htmlControlsNext, htmlControlsPrevious], function(i, element) {
 				$(element).hide().css({opacity: 1});
 			});
