@@ -102,7 +102,7 @@
 			return;
 		}
 		
-		groupElements = $('a.flowerpot[rel=gallery\\[' + match[1] + '\\]]');
+		groupElements = $(defaultSelector.replace(',', ',[rel=gallery\\[' + match[1] + '\\]]'));
 		
 		for (var i in groupElements) {
 			if (jQuery(currentFlowerpotElement).attr('href') == jQuery(groupElements[i]).attr('href')) {
