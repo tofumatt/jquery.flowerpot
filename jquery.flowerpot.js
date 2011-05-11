@@ -103,6 +103,13 @@
 		}
 		
 		groupElements = $('a.flowerpot[rel=gallery\\[' + match[1] + '\\]]');
+		
+		for (var i in groupElements) {
+			if (jQuery(currentFlowerpotElement).attr('href') == jQuery(groupElements[i]).attr('href')) {
+				groupIndex = i;
+				return;
+			}
+		}
 	},
 	
 	// Detect the type of overlay to load
@@ -165,8 +172,11 @@
 		
 		// If the previous index was an inline div, swap the
 		// placeholder back into The Flowerpot
-		// if (fp.p['src'] && !fp.p['ajax'] && fp.p['type'] == 'div')
-		// 	$(fp.p['src']).swap('#flowerpotjs-div-swap');
+		/*
+		if (type === typeHTML) {
+			$(jQuery(currentFlowerpotElement).attr('href')).swap('#flowerpot-js-swap');
+		}
+		*/
 		
 		// Select the gallery element and grow a Flowerpot
 		currentFlowerpotElement = groupElements[groupIndex];
